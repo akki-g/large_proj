@@ -85,3 +85,4 @@ router.get('/:className/chapters', async (req, res) => {
 });
 
 module.exports = router;
+// In this example, the /studyplan endpoint uses multer to handle file uploads and pdf-parse to extract text from the uploaded syllabus PDF. It then constructs a prompt for the LLM API and sends a request to generate chapter titles based on the syllabus text. The generated chapter titles are saved to the database as Chapter documents.
