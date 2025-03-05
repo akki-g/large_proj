@@ -32,7 +32,7 @@ exports.register = async (req, res) => {
         });
 
         const savedUser = await newUser.save();
-        res.status(200).json({message : "User registered successfully"}, savedUser);
+        res.status(200).json({message : "User registered successfully", user: savedUser});
     }
 
 
@@ -72,8 +72,8 @@ exports.login = async (req, res) => {
             }
         };
 
-        const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "1h"});
-        res.status(200).json({message : "Login Successful", token});
+        const JWTtoken = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "1h"});
+        res.status(200).json({message : "Login Successful", token: JWTtoken});
     }
 
     catch (err) {
