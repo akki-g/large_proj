@@ -21,7 +21,7 @@ const RegisterPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5001/api/auth/register', {
+      const response = await axios.post('http://52.45.7.233/api/auth/register', {
         firstName,
         lastName,
         email,
