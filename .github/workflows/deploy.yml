@@ -28,7 +28,7 @@ jobs:
             npm install --production
             npm run build
             sudo rm -rf /var/www/html/*
-            sudo cp -r build/* /var/www/html/
+            sudo cp -r dist/* /var/www/html/
             sudo chown -R www-data:www-data /var/www/html
             sudo chmod -R 755 /var/www/html
             sudo systemctl restart nginx
