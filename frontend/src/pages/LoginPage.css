@@ -1,0 +1,153 @@
+/* Center the app on the page */
+@import url('https://fonts.googleapis.com/css2?family=DynaPuff:wght@400..700&display=swap');
+
+body, html {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: radial-gradient(circle, rgb(26, 27, 26), rgb(6, 54, 21));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Container for the login form */
+.container {
+    background-color: #f9e0c6;
+    max-width: 500px;
+    padding: 20px 60px;
+    border: 1px solid #ddd;
+    border-radius: 18px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    width: 100%; /* Ensures the header takes full width of the container */
+    padding-left: 5px; /* Moves everything slightly right but inside */
+}
+
+.logo {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0; /* Prevents the logo from shrinking */
+}
+
+.app-name {
+    font-family: 'DynaPuff', cursive;
+    font-size: 24px;
+    font-weight: bold;
+    color: #2d6169;
+    margin-left: 10px; /* Moves the text further right */
+    white-space: nowrap; /* Prevents text from wrapping */
+}
+/* Form styling */
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.formGroup {
+    margin-bottom: 15px;
+}
+/* First Horizontal Line (Under logo and name) */
+.horizontal-line {
+    width: 100%;
+    height: 1px;
+    background-color: #6c8c91;
+    margin: 20px 0; /* Space between logo section and line */
+  }
+  
+
+.login {
+    color:#000000;
+    font-size: 20px;
+
+}
+
+.label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    display: block;
+    color: black;
+    text-align: left;
+
+}
+
+.input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #000000;
+    box-sizing: border-box;
+    background-color: #f9e0c6; /* Light beige background */
+    color: #000000; /* Black text */
+}
+
+/* Rounded buttons */
+.button {
+    padding: 10px;
+    background-color: #152555;
+    color: #ffffff;
+    border: none;
+    border-radius: 25px; /* More rounded */
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #000b68;
+}
+
+/* Error and success messages */
+.error {
+    color: red;
+    margin-bottom: 10px;
+}
+
+.success {
+    color: rgb(128, 58, 0);
+    margin-bottom: 10px;
+}
+
+/* Register section */
+.registerContainer {
+    margin-top: 20px;
+    text-align: center;
+    color: #000000;
+}
+
+.registerLink {
+    color: #cc4514;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-text{
+    color:#000000;
+    font-size: 20px;
+}
+.transparent-button {
+    background-color: transparent;
+    border: none;
+    font-size: 15px;
+    margin-top: 10px;
+    color: #a5370d;
+    cursor: pointer;
+    text-decoration: none;
+    outline: none; /* Remove the outline when the button is focused */
+    font-weight: bold;
+  }
+  
+  .transparent-button:hover {
+    color:#4858e9; 
+  }
+  
+  .transparent-button:focus {
+    outline: none; /* Ensure there's no outline on focus */
+  }
