@@ -15,7 +15,7 @@ jobs:
 
       - name: Setup SSH Key
         run: |
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | tr -d '\r' > private_key
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | base64 --decode > private_key
           chmod 600 private_key
           eval "$(ssh-agent -s)"
           ssh-add private_key
