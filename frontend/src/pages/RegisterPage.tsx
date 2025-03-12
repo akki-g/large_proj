@@ -29,10 +29,15 @@ const RegisterPage: React.FC = () => {
         email,
         password,
         phone,
+      }, 
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
-      setMessage(response.data.message);
+      setMessage(response.data.message || "Registration successful!");
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Something went wrong. Please try again.');
+      setError(err.response?.data?.error || err.response?.data?.msg || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
