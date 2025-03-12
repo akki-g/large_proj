@@ -23,9 +23,11 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key ubuntu@52.45.7.233 <<EOF
-            cd /home/ubuntu/project-folder
+            cd /home/ubuntu/large_proj
             git pull origin main
             npm install --production
+            cd frontend
+            npm install
             npm run build
             sudo rm -rf /var/www/html/*
             sudo cp -r dist/* /var/www/html/
