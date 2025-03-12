@@ -19,7 +19,7 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://52.45.7.233/api/auth/login', {
+      const response = await axios.post('https://api.scuba2havefun.xyz/api/auth/login', {
         email,
         password,
       });
