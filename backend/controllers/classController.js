@@ -252,3 +252,17 @@ exports.deleteClass = async (req, res, newToken) => {
         res.status(500).json({error: err.message});
     }
 }
+
+
+//get all classes
+exports.getAllClasses = async (req, res) => {
+    try{
+        const userID = req.body.userID;
+
+        const classes = await Class.findOne({userID : userID});
+        res.status(200).json({classes});
+    }
+    catch(err){
+        res.status(500).json({error: err.message});
+    }
+}
