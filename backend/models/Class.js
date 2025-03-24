@@ -10,10 +10,6 @@ const classSchema = new Schema({
         type: String,
         required: true,
     },
-    time: {
-        type: String,
-        required: false,
-    },
     syllabus: {
         type: String,
         required: false,

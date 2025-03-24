@@ -3,6 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 
 const App: React.FC = () => {
   return (
@@ -14,6 +15,8 @@ const App: React.FC = () => {
         <Route path="/login" element={<LoginPage />} />
         {/* Register Route */}
         <Route path="/register" element={<RegisterPage />} />
+        {/* Verify Email Route */}
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
       </Routes>
     </Router>
   );

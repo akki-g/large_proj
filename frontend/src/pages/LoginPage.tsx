@@ -23,7 +23,7 @@ const LoginPage: React.FC = () => {
         email,
         password,
       });
-      setMessage(response.data.message);
+      setMessage(response.data.msg || "Login successful!");
       localStorage.setItem('token', response.data.token);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Something went wrong. Please try again.');

@@ -35,7 +35,7 @@ const RegisterPage: React.FC = () => {
           'Content-Type': 'application/json',
         },
       });
-      setMessage(response.data.message || "Registration successful!");
+      setMessage(response.data.msg || "Registration successful!");
     } catch (err: any) {
       setError(err.response?.data?.error || err.response?.data?.msg || 'Something went wrong. Please try again.');
     } finally {
