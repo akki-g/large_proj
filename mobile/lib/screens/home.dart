@@ -1,15 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 import 'login.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  void _logout(BuildContext context) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
+  void _confirmLogout(BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: Text('Confirm Logout'),
+        content: Padding(
+          padding: EdgeInsets.only(top: 8.0),
+          child: Text('Are you sure you want to logout?'),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Cancel'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+              );
+            },
+            child: Text('Logout'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -40,10 +65,23 @@ class HomePage extends StatelessWidget {
           ],
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            tooltip: 'Logout',
-            onPressed: () => _logout(context),
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert),
+            onSelected: (value) {
+              if (value == 'logout') _confirmLogout(context);
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, color: Colors.black),
+                    SizedBox(width: 8),
+                    Text('Logout'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
