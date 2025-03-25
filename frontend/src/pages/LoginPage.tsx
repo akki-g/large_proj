@@ -1,7 +1,6 @@
-import './LoginPage.css';
 import React, { useState, FormEvent } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const logo = "/logo.webp"; 
 
@@ -11,6 +10,8 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+
+  const navigate = useNavigate(); // Initialize the navigate function
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,6 +26,10 @@ const LoginPage: React.FC = () => {
       });
       setMessage(response.data.msg || "Login successful!");
       localStorage.setItem('token', response.data.token);
+
+      // Navigate to the main page after successful login
+      navigate('/main'); // Adjust the route to your main page route
+
     } catch (err: any) {
       setError(err.response?.data?.error || 'Something went wrong. Please try again.');
     } finally {
@@ -33,7 +38,6 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    
     <div className="container">
       <div className="app-header">
         <img src={logo} alt="App Logo" className="logo" />
@@ -41,7 +45,7 @@ const LoginPage: React.FC = () => {
       </div>
       <div className="horizontal-line"></div>
 
-      <h2 className = "login">Login</h2>
+      <h2 className="login">Login</h2>
       <form onSubmit={handleSubmit} className="form">
         <div className="formGroup">
           <input

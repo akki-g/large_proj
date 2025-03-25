@@ -1,15 +1,16 @@
 const User = require('../models/Users');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const {v4: uuidv4} = require('uuid');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
 
 //register
-// The account still gets created, even if the email fails to send. This can lock people out of certain emails!
 exports.register = async (req, res) => {
     try {
         const {firstName, lastName, email, password, phone} = req.body;
+        const userID = uuidv4();
         
         if (!firstName || !lastName || !email || !password || !phone) {
             return res.status(400).json({msg: "All fields are required"});
@@ -32,6 +33,7 @@ exports.register = async (req, res) => {
             email,
             password: passwordHash,
             phone,
+            userID,
             isVerified: false,
             verificationToken: token,
             verificationTokenExpires: verificationTokenExpires
@@ -138,8 +140,10 @@ exports.login = async (req, res) => {
         }
 
         const payload = {
-            id: user._id,
-            email : user.email
+            user: {
+                id: user.userID,
+                email : user.email
+            }
         };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "1h"});
