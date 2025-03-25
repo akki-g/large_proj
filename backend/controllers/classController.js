@@ -132,8 +132,8 @@ exports.createClass = async (req, res) => {
         if (!name || !number || !syllabus) {
             return res.status(400).json({ msg: "All fields are required." });
         } 
+        const userData = tokenController.getTokenData(jwtToken);
         const refreshedToken = tokenController.refreshToken(jwtToken);
-        const userData = tokenController.getTokenData(refreshedToken);
         console.log("Token data:", userData);
         const userID = userData.payload.user.id;
 
