@@ -142,7 +142,7 @@ exports.createClass = async (req, res) => {
 
         let syllabusText;
         try {
-            const pdfBuffer = Buffer.from(syllabus, 'base64');
+            const pdfBuffer = fs.readFileSync(syllabusFile.path);
             syllabusText = await pdfParse(pdfBuffer);
             syllabusText = syllabusText.text;
 
