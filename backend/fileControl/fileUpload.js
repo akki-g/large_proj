@@ -18,22 +18,30 @@ const storage = multer.diskStorage({
     }
 });
 
-const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'application/pdf') {
-        cb(null, true);
-    }
-    else {
-        cb(null, false);
-    }
-};
-
-const upload = multer({
-    storage: storage, 
+const upload = multer({ 
+    storage: storage,
     limits: {
-        fileSize: 10 * 1024 * 1024,
+      fileSize: 10 * 1024 * 1024 // 10MB limit
     },
-    fileFilter: fileFilter
-});
+    fileFilter: function (req, file, cb) {
+      // Log information about the incoming file for debugging
+      console.log('Received file in multer:', {
+        fieldname: file.fieldname,
+        originalname: file.originalname,
+        mimetype: file.mimetype
+      });
+      
+      // Accept all files for now to diagnose the issue
+      cb(null, true);
+      
+      // To only allow PDFs, uncomment this:
+      // if (file.mimetype === 'application/pdf') {
+      //   cb(null, true);
+      // } else {
+      //   cb(new Error('Only PDF files are allowed!'), false);
+      // }
+    }
+  });
 
 
 module.exports = upload;
