@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { createClass, searchClass, modifyClass, deleteClass, getAllClasses, getClassWithChapters } = require('../controllers/classController');
 
-router.post('/create', createClass);
+router.post('/create',  upload.single('syllabus'), createClass);
 router.post('/search', searchClass);
 router.post('/modify', modifyClass);
 router.post('/delete', deleteClass);

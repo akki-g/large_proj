@@ -1,5 +1,6 @@
 const axios = require('axios');
 const pdfParse = require('pdf-parse');
+const fs = require('fs');
 const Class = require('../models/Class');
 const Chapter = require('../models/Chapter');
 const tokenController = require('./tokenController');
@@ -125,7 +126,8 @@ async function generateChapterSummaries(chapterNames, className) {
 // create class
 exports.createClass = async (req, res) => {
     try {
-      const { name, number, syllabus, jwtToken } = req.body;
+      const { name, number, jwtToken } = req.body;
+      const syllabus = req.file;
   
         if (!name || !number || !syllabus) {
             return res.status(400).json({ msg: "All fields are required." });
@@ -143,6 +145,8 @@ exports.createClass = async (req, res) => {
             const pdfBuffer = Buffer.from(syllabus, 'base64');
             syllabusText = await pdfParse(pdfBuffer);
             syllabusText = syllabusText.text;
+
+            fs.unlinkSync(syllabus.path); // Delete the temporary file
         } catch (error) {
             console.error('Error parsing syllabus PDF:', error);
             return res.status(400).json({ msg: "Unable to parse syllabus PDF." });
@@ -155,6 +159,8 @@ exports.createClass = async (req, res) => {
             userID,
             chapters: [] // Start with empty array
         });
+
+        const savedClass = await newClass.save();
 
         // Generate chapters based on the syllabus text
         const chapterTitles = await generateChapters(syllabusText);
@@ -178,8 +184,6 @@ exports.createClass = async (req, res) => {
         
         
         savedClass.chapters = chapterIds;
-        const savedClass = await newClass.save();
-
         await savedClass.save();
 
         res.status(200).json({
