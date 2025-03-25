@@ -1,13 +1,8 @@
-const openai = require('openai');
-const openaiKey = process.env.OPENAI_KEY;
-const openaiClient = new openai(openaiKey);
+const axios = require('axios');
 const pdfParse = require('pdf-parse');
-
-
-const express = require('express');
-const router = express.Router();
 const Class = require('../models/Class');
 const Chapter = require('../models/Chapter');
+const tokenController = require('./tokenController');
 
 // Create a new class/syllabus
 
@@ -15,6 +10,8 @@ const Chapter = require('../models/Chapter');
 
 async function generateChapters(syllabusText) {
     try {
+        const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
         const prompt = 
         `
             Based on the following syllabus text, generate a list of 5 to 10 chapter titles for a class study plan:
@@ -22,9 +19,18 @@ async function generateChapters(syllabusText) {
             Please return the chapter titles in JSON format as an array of strings.
         `;
 
-        const response = await axios.post('https://api.openai.com/v1/completions', {
-            model: 'gpt-4-mini', // Ensure the correct model is used
-            prompt,
+        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+            model: 'gpt-4o-mini', // Using the latest available model
+            messages: [
+                { 
+                    role: 'system', 
+                    content: 'You are a helpful assistant that generates educational content.'
+                },
+                { 
+                    role: 'user', 
+                    content: prompt 
+                }
+            ],
             temperature: 0.7
         }, {
             headers: {
@@ -34,7 +40,20 @@ async function generateChapters(syllabusText) {
         });
 
         // Extract and parse the response text into JSON
-        const chapters = JSON.parse(response.data.choices[0].text.trim());
+        const responseContent = response.data.choices[0].message.content.trim();
+        let chapters;
+        try {
+            chapters = JSON.parse(responseContent);
+        } catch (parseError) {
+            const jsonMatch = responseContent.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+                chapters = JSON.parse(jsonMatch[0]);
+            } else {
+                chapters = responseContent.split('/n')
+                .map(line => line.replace(/^[0-9]+\.\s*|"|\[|\]/g, '').trim())
+                .filter(line => line.length > 0);
+            }
+        }
         return chapters;
     } catch (error) {
         console.error('Error generating chapters:', error);
@@ -46,6 +65,8 @@ async function generateChapters(syllabusText) {
 
 async function generateChapterSummaries(chapterNames, className) {
     try {
+        const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
         const prompt = 
         `Based on the given chapter titles, and class names, generate a summary for each chapter.
         
@@ -55,9 +76,18 @@ async function generateChapterSummaries(chapterNames, className) {
         Return the chapter summaries in JSON format as an array of strings, with each string corresponding to a chapter title.
         `;
 
-        const response = await axios.post('https://api.openai.com/v1/completions', {
-            model: 'gpt-4-mini', 
-            prompt, 
+        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+            model: 'gpt-4o-mini',
+            messages: [
+                { 
+                    role: 'system', 
+                    content: 'You are a helpful assistant that generates educational content.'
+                },
+                { 
+                    role: 'user', 
+                    content: prompt 
+                }
+            ],
             temperature: 0.7
         }, {
             headers: {
@@ -66,11 +96,25 @@ async function generateChapterSummaries(chapterNames, className) {
             }
         });
 
-        const summaries = JSON.parse(response.data.choices[0].text.trim());
+        const responseContent = response.data.choices[0].message.content.trim();
+        let summaries;
+
+        try {
+            summaries = JSON.parse(responseContent);
+        }
+        catch (parseError) {
+            const jsonMatch = responseContent.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+                summaries = JSON.parse(jsonMatch[0]);
+            } else {
+                summaries = chapterNames.map(name => 
+                    `Summary for ${name}:
+                    This chapter covers key concepts related to this topic.`
+                );
+            }
+        }
         return summaries;
-
     }
-
     catch (error) {
         console.error('Error generating chapter summaries:', error);
         throw new Error('Failed to generate chapter summaries.');
@@ -86,22 +130,44 @@ exports.createClass = async (req, res) => {
         if (!name || !number || !syllabus) {
             return res.status(400).json({ msg: "All fields are required." });
         } 
-  
-        // Parse the syllabus PDF text
-        const pdfData = await pdfParse(syllabus); // Assuming syllabus is PDF file in base64 or binary format
-        const syllabusText = pdfData.text;
-  
+        const refreshedToken = tokenController.refreshToken(jwtToken);
+        const userData = tokenController.getTokenData(refreshedToken);
+        const userID = userData.payload.id;
+
+        if (!userID) {
+            return res.status(401).json({ msg: "Invalid authentication token." });
+        }
+
+        let syllabusText;
+        try {
+            const pdfBuffer = Buffer.from(syllabus, 'base64');
+            syllabusText = await pdfParse(pdfBuffer);
+            syllabusText = syllabusText.text;
+        } catch (error) {
+            console.error('Error parsing syllabus PDF:', error);
+            return res.status(400).json({ msg: "Unable to parse syllabus PDF." });
+        }
+
+
         // Generate chapters based on the syllabus text
         const chapterTitles = await generateChapters(syllabusText);
         const chapterSummaries = await generateChapterSummaries(chapterTitles, name);
 
         // Create chapters
-        const chapters = chapterTitles.map((title, index) => new Chapter({
-            chapterName: title,
-            className: name,
-            classID: number,
-            summary: chapterSummaries[index]
-        }));
+        const chapterDocs = [];
+        for (let i = 0; i < chapterTitles.length; i++) {
+            const chapter = new Chapter({
+                chapterName: chapterTitles[i],
+                className: name,
+                classID: number, // Note: This might need to be updated after class creation
+                summary: chapterSummaries[i],
+                userID: userID,
+                quiz: [] // Initialize with empty quiz
+            });
+            
+            await chapter.save();
+            chapterDocs.push(chapter);
+        }
         
         
         
@@ -109,11 +175,18 @@ exports.createClass = async (req, res) => {
         const newClass = new Class({
             name,
             number,
-            syllabus,
+            syllabus: syllabusText, // Store the extracted text
             userID,
-            chapters: [chapters]
+            chapters: chapterDocs // Add the chapter documents
         });
-    
+
+        const savedClass = await newClass.save();
+
+        for (const chapter of chapterDocs) {
+            chapter.classID = savedClass._id;
+            await chapter.save();
+        }
+
         res.status(200).json({
             message: "Class and study plan created successfully.",
             jwtToken: refreshedToken,
@@ -129,14 +202,28 @@ exports.createClass = async (req, res) => {
 // search and return set of classes, given keyword
 exports.searchClass = async (req, res, next) => {
     try {
-        var {search, jwtToken} = req.body;
+        const { classID, jwtToken } = req.body;
 
-        if (!search) {
-            search = "";
+        // Validate input
+        if (!classID) {
+            return res.status(400).json({ msg: "Class ID is required." });
         }
 
-        const classes = await Class.find({"name": {$regex: new RegExp(search.trim(), "ig")}, "userID": (tokenController.getTokenData(refreshedToken)).payload.id});
+        // Verify JWT and get user ID
+        const refreshedToken = tokenController.refreshToken(jwtToken);
+        const userData = tokenController.getTokenData(refreshedToken);
+        const userID = userData.payload.id;
 
+        if (!userID) {
+            return res.status(401).json({ msg: "Invalid authentication token." });
+        }
+
+
+        const chapters = await Chapter.find({
+            classID: classID,
+            userID: userID
+        }).sort({ _id: 1 }); 
+        
         res.status(200).json({ 
             message: "Class search complete.",
             classes: classes,
