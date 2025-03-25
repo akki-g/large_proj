@@ -85,14 +85,7 @@ exports.createClass = async (req, res) => {
   
         if (!name || !number || !syllabus) {
             return res.status(400).json({ msg: "All fields are required." });
-        }
-  
-        if (tokenController.isTokenInvalid(jwtToken)) {
-            return res.status(400).json({ error: 'The JWT is no longer valid.' });
-        }
-  
-        const refreshedToken = tokenController.tokenRefresh(jwtToken);
-        const userID = tokenController.getTokenData(refreshedToken).payload.id;
+        } 
   
         // Parse the syllabus PDF text
         const pdfData = await pdfParse(syllabus); // Assuming syllabus is PDF file in base64 or binary format
@@ -142,21 +135,6 @@ exports.searchClass = async (req, res, next) => {
             search = "";
         }
 
-        if (tokenController.isTokenInvalid(jwtToken)) {
-            var r = {error:'The JWT is no longer valid.', jwtToken: ''};
-            return res.status(400).json(r);
-        }
-
-        var refreshedToken = null;
-
-        try {
-            refreshedToken = tokenController.tokenRefresh(jwtToken);
-        }
-        catch(err) {
-            console.log(err.message);
-            return res.status(200).json({error:err.message, jwtToken: ''});
-        }
-
         const classes = await Class.find({"name": {$regex: new RegExp(search.trim(), "ig")}, "userID": (tokenController.getTokenData(refreshedToken)).payload.id});
 
         res.status(200).json({ 
@@ -168,7 +146,7 @@ exports.searchClass = async (req, res, next) => {
     catch (err) {
         res.status(500).json({error: err.message});
     }
-});
+};
 
 // modify class data
 // pass in the mongodb ID as classID
@@ -178,21 +156,6 @@ exports.modifyClass = async (req, res, next) => {
 
         if (!name || !number || !syllabus || !classID) {
             return res.status(400).json({msg: "All fields are required."});
-        }
-
-        if (tokenController.isTokenInvalid(jwtToken)) {
-            var r = {error:'The JWT is no longer valid.', jwtToken: ''};
-            return res.status(400).json(r);
-        }
-
-        var refreshedToken = null;
-
-        try {
-            refreshedToken = tokenController.tokenRefresh(jwtToken);
-        }
-        catch(err) {
-            console.log(err.message);
-            return res.status(200).json({error:err.message, jwtToken: ''});
         }
 
         const targetClass = await Class.findOneAndUpdate(
@@ -212,28 +175,13 @@ exports.modifyClass = async (req, res, next) => {
     catch (err) {
         res.status(500).json({error: err.message});
     }
-});
+};
 
 // delete class
 // pass in the mongodb ID as classID
 exports.deleteClass = async (req, res, newToken) => {
     try {
         const {classID, jwtToken} = req.body
-
-        if (tokenController.isTokenInvalid(jwtToken)) {
-            var r = {error:'The JWT is no longer valid.', jwtToken: ''};
-            return res.status(400).json(r);
-        }
-
-        var refreshedToken = null;
-
-        try {
-            refreshedToken = tokenController.tokenRefresh(jwtToken);
-        }
-        catch(err) {
-            console.log(err.message);
-            return res.status(200).json({error:err.message, jwtToken: ''});
-        }
 
         const deleted = await Class.findOneAndDelete({"_id": classID, "userID": (tokenController.getTokenData(refreshedToken)).payload.id});
 
@@ -250,7 +198,7 @@ exports.deleteClass = async (req, res, newToken) => {
     catch (error) {
         res.status(400).json({ error: error.message });
     }
-});
+};
 
 
 //get all classes
@@ -264,5 +212,5 @@ exports.getAllClasses = async (req, res) => {
     catch(err){
         res.status(500).json({error: err.message});
     }
-});
+};
 
