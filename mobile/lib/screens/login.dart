@@ -14,8 +14,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
   bool _obscurePassword = true;
+  String? _errorText;
 
   @override
   void dispose() {
@@ -47,10 +47,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = emailController.text.trim();
     final password = passwordController.text;
 
+    setState(() => _errorText = null);
+
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter email and password')),
-      );
+      setState(() => _errorText = 'Please enter both email and password.');
       return;
     }
 
@@ -64,6 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (response.statusCode == 200) {
+        setState(() => _errorText = null);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -75,16 +76,16 @@ class _LoginScreenState extends State<LoginScreen> {
       else {
         final error = jsonDecode(response.body);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login failed: ${error['message'] ?? response.body}')),
-        );
+        setState(() {
+          _errorText = "Login failed: ${error['message'] ?? 'Unknown error'}";
+        });
       }
     }
 
     catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      setState(() {
+        _errorText = 'Error: $e';
+      });
     }
   }
 
@@ -151,6 +152,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
+                if (_errorText != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Text(
+                      _errorText!,
+                      style: TextStyle(color: Colors.red, fontSize: 14),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(

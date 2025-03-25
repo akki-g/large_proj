@@ -18,12 +18,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final confirmPasswordController = TextEditingController();
   final phoneController = TextEditingController();
 
-  bool _isValidPassword(String password) {
+  String? _errorText;
+  String? _successText;
+
+  /*bool _isValidPassword(String password) {
     final regex = RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).+$');
     return regex.hasMatch(password);
-  }
+  }*/
   
   bool _obscurePassword = true;
+
+  bool _hasUpper = false;
+  bool _hasLower = false;
+  bool _hasDigit = false;
+  bool _hasSpecial = false;
 
   @override
   void dispose() {
@@ -34,6 +42,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     confirmPasswordController.dispose();
     phoneController.dispose();
     super.dispose();
+  }
+
+  bool _isValidPassword(String password) {
+    return _hasUpper && _hasLower && _hasDigit && _hasSpecial;
   }
 
   InputDecoration _roundedInputDecoration(String label) {
@@ -55,6 +67,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  Widget _buildPasswordRule(bool condition, String label) {
+    return Row(
+      children: [
+        Icon(
+          condition ? Icons.check_circle : Icons.cancel,
+          color: condition ? Colors.green : Colors.red,
+          size: 18,
+        ),
+        SizedBox(width: 6),
+        Text(label, style: TextStyle(fontSize: 13)),
+      ],
+    );
+  }
+
   void _register() async {
     final firstName = firstNameController.text.trim();
     final lastName = lastNameController.text.trim();
@@ -62,18 +88,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final password = passwordController.text;
     final confirmPassword = confirmPasswordController.text;
     final phone = phoneController.text.trim();
+    
+    setState(() {
+      _errorText = null;
+      _successText = null;
+    });
+    
 
     if ([firstName, lastName, email, password, confirmPassword, phone].any((e) => e.isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill all fields')), 
-      );
+      setState(() => _errorText = 'Please fill all fields.');
       return;
     }
 
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Passwords do not match!')),
-      );
+      setState(() => _errorText = 'Passwords do not match.');
+      return;
+    }
+
+    if (!_isValidPassword(password)) {
+      setState(() => _errorText = 'Password must include at least one uppercase, lowercase, number, and special character.');
       return;
     }
 
@@ -92,24 +125,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }),
       );
 
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registration successful!')),
-        );
-
-        Navigator.pop(context);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() {
+          _errorText = null;
+          _successText = 'Registration successful! Please verify your email.';
+        });
+        
+        await Future.delayed((Duration(seconds: 3)));
+        
+        if (mounted) {
+          Navigator.pop(context);
+        }
       }
 
       else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registration failed: ${response.body}')),
-        );
+        String message = 'Registation failed. Try again.';
+
+        try {
+          if (response.body.isNotEmpty) {
+            final error = jsonDecode(response.body);
+            message = error['message'] ?? message;
+          }
+        }
+
+        catch (e) {
+          message = 'Something went wrong. Please try again';
+        }
+
+        setState(() {
+          _errorText = message;
+          _successText = null;
+        });
       }
     }
+
     catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      setState(() {
+        _errorText = 'Something went wrong. Please try again.';
+        _successText = null;
+      });
     }
   }
 
@@ -153,17 +207,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     endIndent: 20,
                   ),
                   Text("Register", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 15),
+                  SizedBox(height: 10),
                   TextField(
                     controller: firstNameController,
                     decoration: _roundedInputDecoration("First Name"),
                   ),
-                  SizedBox(height: 15),
+                  SizedBox(height: 10),
                   TextField(
                     controller: lastNameController,
                     decoration: _roundedInputDecoration("Last Name"),
                   ),
-                  SizedBox(height: 15),
+                  SizedBox(height: 10),
                   TextField(
                     controller: emailController,
                     decoration: _roundedInputDecoration("Email"),
@@ -173,7 +227,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: passwordController,
                     obscureText: _obscurePassword,
                     onChanged: (value) {
-                      setState(() {});
+                      setState(() {
+                        _hasUpper = RegExp(r'[A-Z]').hasMatch(value);
+                        _hasLower = RegExp(r'[a-z]').hasMatch(value);
+                        _hasDigit = RegExp(r'\d').hasMatch(value);
+                        _hasSpecial = RegExp(r'[@\$!%*?&]').hasMatch(value);
+                      });
                     },
                     decoration: _roundedInputDecoration("Password").copyWith(
                       suffixIcon: IconButton(
@@ -189,11 +248,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 15),
-                  Text(
-                    !_isValidPassword(passwordController.text) && passwordController.text.isNotEmpty ? "Must include at least 1 uppercase, lowercase, number, and special character." : "",
-                    style: TextStyle(color: Colors.red, fontSize: 12),
-                  ),
+                  SizedBox(height: 10),
                   TextField(
                     controller: confirmPasswordController,
                     obscureText: _obscurePassword,
@@ -211,12 +266,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 15),
+                  SizedBox(height: 10),
                   TextField(
                     controller: phoneController,
                     decoration: _roundedInputDecoration("Phone Number"),
                   ),
-                  SizedBox(height: 15),
+                  if (passwordController.text.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildPasswordRule(_hasUpper, "At least one uppercase letter"),
+                            _buildPasswordRule(_hasLower, "At least one lowercase letter"),
+                            _buildPasswordRule(_hasDigit, "At least one number"),
+                            _buildPasswordRule(_hasSpecial, "At least one special character"),
+                          ],
+                        ),
+                      ),
+                    ),
+                  if (_errorText != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
+                      child: Text(
+                        _errorText!,
+                        style: TextStyle(color: Colors.red, fontSize: 13),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  if (_successText != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        _successText!,
+                        style: TextStyle(color: Colors.green, fontSize: 13, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
