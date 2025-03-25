@@ -3,12 +3,9 @@ const openaiKey = process.env.OPENAI_KEY;
 const openaiClient = new openai(openaiKey);
 const pdfParse = require('pdf-parse');
 
-// Since no actual AI integration has taken place (and none should until we get all the basic stuff working),
-// I commented out the AI-centered imports. Uncomment them when you're ready.
 
 const express = require('express');
 const router = express.Router();
-const tokenController = require('./tokenController')
 const Class = require('../models/Class');
 const Chapter = require('../models/Chapter');
 
@@ -81,6 +78,7 @@ async function generateChapterSummaries(chapterNames, className) {
 }
 
 // create class
+// create class
 exports.createClass = async (req, res) => {
     try {
       const { name, number, syllabus, jwtToken } = req.body;
@@ -133,7 +131,7 @@ exports.createClass = async (req, res) => {
         res.status(500).json({ error: err.message });
         }
     };
-  
+        
 
 // search and return set of classes, given keyword
 exports.searchClass = async (req, res, next) => {
@@ -170,7 +168,7 @@ exports.searchClass = async (req, res, next) => {
     catch (err) {
         res.status(500).json({error: err.message});
     }
-}
+});
 
 // modify class data
 // pass in the mongodb ID as classID
@@ -214,7 +212,7 @@ exports.modifyClass = async (req, res, next) => {
     catch (err) {
         res.status(500).json({error: err.message});
     }
-}
+});
 
 // delete class
 // pass in the mongodb ID as classID
@@ -247,11 +245,12 @@ exports.deleteClass = async (req, res, newToken) => {
             message: "Class deleted.",
             jwtToken: refreshedToken
         });
+        
     }
-    catch (err) {
-        res.status(500).json({error: err.message});
+    catch (error) {
+        res.status(400).json({ error: error.message });
     }
-}
+});
 
 
 //get all classes
@@ -265,4 +264,5 @@ exports.getAllClasses = async (req, res) => {
     catch(err){
         res.status(500).json({error: err.message});
     }
-}
+});
+
