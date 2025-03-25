@@ -134,6 +134,7 @@ exports.createClass = async (req, res) => {
         } 
         const refreshedToken = tokenController.refreshToken(jwtToken);
         const userData = tokenController.getTokenData(refreshedToken);
+        console.log("Token data:", userData);
         const userID = userData.payload.user.id;
 
         if (!userID) {
@@ -212,7 +213,7 @@ exports.searchClass = async (req, res, next) => {
         const refreshedToken = tokenController.refreshToken(jwtToken);
         const userData = tokenController.getTokenData(refreshedToken);
         const userID = userData.payload.user.id;
-
+        
         if (!userID) {
             return res.status(401).json({ msg: "Invalid authentication token." });
         }
@@ -290,8 +291,8 @@ exports.deleteClass = async (req, res, newToken) => {
 //get all classes
 exports.getAllClasses = async (req, res) => {
     try{
-    const userID = userData.payload.user.id;
-    
+        const userID = req.body.userID;
+
         const classes = await Class.findOne({userID : userID});
         res.status(200).json({classes});
     }
