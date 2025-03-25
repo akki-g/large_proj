@@ -148,44 +148,39 @@ exports.createClass = async (req, res) => {
             return res.status(400).json({ msg: "Unable to parse syllabus PDF." });
         }
 
+        const newClass = new Class({
+            name,
+            number,
+            syllabus: syllabusText, // Assuming you've extracted text from PDF
+            userID,
+            chapters: [] // Start with empty array
+        });
 
         // Generate chapters based on the syllabus text
         const chapterTitles = await generateChapters(syllabusText);
         const chapterSummaries = await generateChapterSummaries(chapterTitles, name);
 
         // Create chapters
-        const chapterDocs = [];
+        const chapterIds = [];
         for (let i = 0; i < chapterTitles.length; i++) {
             const chapter = new Chapter({
                 chapterName: chapterTitles[i],
                 className: name,
-                classID: number, // Note: This might need to be updated after class creation
+                classID: savedClass._id.toString(), // Convert ObjectId to string if needed
                 summary: chapterSummaries[i],
                 userID: userID,
                 quiz: [] // Initialize with empty quiz
             });
             
-            await chapter.save();
-            chapterDocs.push(chapter);
+            const savedChapter = await chapter.save();
+            chapterIds.push(savedChapter._id); // Store the chapter ID
         }
         
         
-        
-        // Create new class
-        const newClass = new Class({
-            name,
-            number,
-            syllabus: syllabusText, // Store the extracted text
-            userID,
-            chapters: chapterDocs // Add the chapter documents
-        });
-
+        savedClass.chapters = chapterIds;
         const savedClass = await newClass.save();
 
-        for (const chapter of chapterDocs) {
-            chapter.classID = savedClass._id;
-            await chapter.save();
-        }
+        await savedClass.save();
 
         res.status(200).json({
             message: "Class and study plan created successfully.",
@@ -223,7 +218,7 @@ exports.searchClass = async (req, res, next) => {
             classID: classID,
             userID: userID
         }).sort({ _id: 1 }); 
-        
+
         res.status(200).json({ 
             message: "Class search complete.",
             classes: classes,
@@ -301,3 +296,32 @@ exports.getAllClasses = async (req, res) => {
     }
 };
 
+exports.getClassWithChapters = async (req, res) => {
+    try {
+        const { classID, jwtToken } = req.body;
+        
+        // Verify JWT and get user ID
+        const refreshedToken = tokenController.refreshToken(jwtToken);
+        const userData = tokenController.getTokenData(refreshedToken);
+        const userID = userData.payload.id;
+
+        // Find the class and populate the chapters
+        const classWithChapters = await Class.findOne({
+            _id: classID,
+            userID: userID
+        }).populate('chapters'); // This fetches the full chapter documents
+        
+        if (!classWithChapters) {
+            return res.status(404).json({ message: "Class not found" });
+        }
+
+        res.status(200).json({
+            message: "Class retrieved successfully",
+            jwtToken: refreshedToken,
+            class: classWithChapters
+        });
+    } catch (err) {
+        console.error("Error retrieving class:", err);
+        res.status(500).json({ error: err.message });
+    }
+};

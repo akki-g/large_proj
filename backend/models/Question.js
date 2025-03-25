@@ -9,6 +9,7 @@ const quizSchema = new Schema({
     option3 : { type: String, required: true },
     option4 : { type: String, required: true },
     correctOption : { type: String, required: true },
+    chosenOption : { type: String, required: false },
     chapterID : { type: String, required: true },
     classID : { type: String, required: true },
 });

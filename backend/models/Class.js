@@ -20,7 +20,7 @@ const classSchema = new Schema({
         type: String,
         required: true,
     },
-    chapters: [chapterSchema]
+    chapters: [{ type: Schema.Types.ObjectId, ref: 'Chapter' }]
 });
 
 module.exports = mongoose.model('Class', classSchema);
