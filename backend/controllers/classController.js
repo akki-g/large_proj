@@ -135,7 +135,7 @@ exports.createClass = async (req, res) => {
         const userData = tokenController.getTokenData(jwtToken);
         const refreshedToken = tokenController.refreshToken(jwtToken);
         console.log("Token data:", userData);
-        const userID = userData.payload.user.id;
+        const userID = userData.user.id;
 
         if (!userID) {
             return res.status(401).json({ msg: "Invalid authentication token." });

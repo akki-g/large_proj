@@ -13,7 +13,7 @@ exports.createToken = (payload) => {
 exports.refreshToken = (token) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        return this.createToken(decoded.payload);
+        return this.createToken(decoded.user);
     }
     catch (err) {
         console.error("Error refreshing token:", err);
