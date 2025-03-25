@@ -21,11 +21,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? _errorText;
   String? _successText;
 
-  /*bool _isValidPassword(String password) {
-    final regex = RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).+$');
-    return regex.hasMatch(password);
-  }*/
-  
   bool _obscurePassword = true;
 
   bool _hasUpper = false;
@@ -231,7 +226,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         _hasUpper = RegExp(r'[A-Z]').hasMatch(value);
                         _hasLower = RegExp(r'[a-z]').hasMatch(value);
                         _hasDigit = RegExp(r'\d').hasMatch(value);
-                        _hasSpecial = RegExp(r'[@\$!%*?&]').hasMatch(value);
+                        _hasSpecial = RegExp(r'[@\$!%*?&./#^]').hasMatch(value);
                       });
                     },
                     decoration: _roundedInputDecoration("Password").copyWith(
