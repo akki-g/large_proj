@@ -19,5 +19,3 @@ const classSchema = new Schema({
         required: true,
     }
 });
-
-module.exports = mongoose.model('Class', classSchema);

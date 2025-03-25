@@ -21,7 +21,6 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/classes', require('./routes/classRoutes'));
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
