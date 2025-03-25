@@ -142,9 +142,9 @@ exports.createClass = async (req, res) => {
 
         let syllabusText;
         try {
-            const pdfBuffer = fs.readFileSync(syllabusFile.path);
-            syllabusText = await pdfParse(pdfBuffer);
-            syllabusText = syllabusText.text;
+            const pdfBuffer = fs.readFileSync(syllabus.path);
+            pdfData = await pdfParse(pdfBuffer);
+            syllabusText = pdfData.text;
 
             fs.unlinkSync(syllabus.path); // Delete the temporary file
         } catch (error) {
