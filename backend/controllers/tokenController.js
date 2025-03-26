@@ -4,7 +4,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.createToken = (payload) => {
     return jwt.sign(
-        { payload },
+        payload,
         JWT_SECRET,
         { expiresIn: '1h' }
     );
@@ -12,8 +12,13 @@ exports.createToken = (payload) => {
 
 exports.refreshToken = (token) => {
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        return this.createToken(decoded.user);
+        const oldPayload = this.getTokenData(token).payload
+        const newPayload = {
+            id: oldPayload.id,
+            email: oldPayload.email
+        }
+        
+        return this.createToken(newPayload);
     }
     catch (err) {
         console.error("Error refreshing token:", err);
@@ -22,17 +27,11 @@ exports.refreshToken = (token) => {
 }
 
 exports.getTokenData = (token) => {
-    try {
-        return jwt.verify(token, JWT_SECRET);
-    }
-    catch (err) {
-        console.error("Error getting token data:", err);
-        return null;
-    }
+    return (jwt.decode(token, {complete:true}));
 }
 
 exports.verifyToken = (token) => {
-    try{
+    try {
         jwt.verify(token, JWT_SECRET);
         return true;
     }

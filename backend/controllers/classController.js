@@ -3,6 +3,7 @@ const pdfParse = require('pdf-parse');
 const fs = require('fs');
 const Class = require('../models/Class');
 const Chapter = require('../models/Chapter');
+const Quiz = require('../models/Question');
 const tokenController = require('./tokenController');
 
 // Create a new class/syllabus
@@ -122,7 +123,7 @@ async function generateChapterSummaries(chapterNames, className) {
     }
 }
 
-// create class
+
 // create class
 exports.createClass = async (req, res) => {
     try {
@@ -135,7 +136,7 @@ exports.createClass = async (req, res) => {
         const userData = tokenController.getTokenData(jwtToken);
         const refreshedToken = tokenController.refreshToken(jwtToken);
         console.log("Token data:", userData);
-        const userID = userData.user.id;
+        const userID = userData.id;
 
         if (!userID) {
             return res.status(401).json({ msg: "Invalid authentication token." });
@@ -200,32 +201,28 @@ exports.createClass = async (req, res) => {
         
 
 // search and return set of classes, given keyword
-exports.searchClass = async (req, res, next) => {
+exports.searchClass = async (req, res) => {
     try {
-        const { query, jwtToken } = req.body;
+        var { query, jwtToken } = req.body;
 
-        // Validate input
-        if (!query) {
-            return res.status(400).json({ msg: "Class ID is required." });
-        }
+        if (!query)
+            query = "";
 
         // Verify JWT and get user ID
-        const refreshedToken = tokenController.refreshToken(jwtToken);
-        const userData = tokenController.getTokenData(refreshedToken);
-        const userID = userData.payload.user.id;
-        
-        if (!userID) {
+        if (!tokenController.verifyToken(jwtToken)) {
             return res.status(401).json({ msg: "Invalid authentication token." });
         }
-
+        
+        const refreshedToken = tokenController.refreshToken(jwtToken);
+        const userID = (tokenController.getTokenData(refreshedToken)).payload.id;
 
         const classes = await Class.find({
             userID: userID,
             $or : [
-                { chapterName: { $regex: query, $options: 'i' } },
-                { summary: { $regex: query, $options: 'i' } }
+                { name: { $regex: query, $options: 'i' } },
+                { number: { $regex: query, $options: 'i' } }
             ]
-        }).sort({ _id: 1 }); 
+        }) 
 
         res.status(200).json({ 
             message: "Class search complete.",
@@ -240,13 +237,19 @@ exports.searchClass = async (req, res, next) => {
 
 // modify class data
 // pass in the mongodb ID as classID
-exports.modifyClass = async (req, res, next) => {
+exports.modifyClass = async (req, res) => {
     try {
         const {name, number, syllabus, classID, jwtToken} = req.body
 
         if (!name || !number || !syllabus || !classID) {
             return res.status(400).json({msg: "All fields are required."});
         }
+
+        if (!tokenController.verifyToken(jwtToken)) {
+            return res.status(401).json({ msg: "Invalid authentication token." });
+        }
+
+        const refreshedToken = tokenController.refreshToken(jwtToken);
 
         const targetClass = await Class.findOneAndUpdate(
             { "_id": classID, "userID": (tokenController.getTokenData(refreshedToken)).payload.id },
@@ -267,17 +270,36 @@ exports.modifyClass = async (req, res, next) => {
     }
 };
 
-// delete class
+// delete class and its chapters and quizzes
 // pass in the mongodb ID as classID
-exports.deleteClass = async (req, res, newToken) => {
+exports.deleteClass = async (req, res) => {
     try {
         const {classID, jwtToken} = req.body
 
-        const deleted = await Class.findOneAndDelete({"_id": classID, "userID": (tokenController.getTokenData(refreshedToken)).payload.id});
+        if (!tokenController.verifyToken(jwtToken)) {
+            return res.status(401).json({ msg: "Invalid authentication token." });
+        }
 
-        if (!deleted) {
+        const refreshedToken = tokenController.refreshToken(jwtToken);
+        const deleteTarget = await Class.findOne({"_id": classID, "userID": (tokenController.getTokenData(refreshedToken)).payload.id});
+
+        if (!deleteTarget) {
             return res.status(400).json({msg: "Class not found."});
         }
+
+        for (const chapterID of deleteTarget.chapters) {
+            const chapter = await Chapter.findById(chapterID);
+
+            if (!chapter)
+                continue;
+
+            for (const questionID of chapter.quiz)
+                await Quiz.findByIdAndDelete(questionID);
+
+            await Chapter.findByIdAndDelete(chapterID);
+        }
+
+        await Class.findByIdAndDelete(classID);
 
         res.status(200).json({ 
             message: "Class deleted.",
@@ -293,24 +315,32 @@ exports.deleteClass = async (req, res, newToken) => {
 
 //get all classes
 exports.getAllClasses = async (req, res) => {
-    try{
-        const token = req.body.token;
-        const userData = tokenController.getTokenData(token);
-        const userID = userData.user.id;
-        const refreshedToken = tokenController.refreshToken(token);
+    try {
+        const { jwtToken } = req.body;
+
+        if (!tokenController.verifyToken(jwtToken)) {
+            return res.status(401).json({ msg: "Invalid authentication token." });
+        }
+
+        const refreshedToken = tokenController.refreshToken(jwtToken);
+        const userData = tokenController.getTokenData(refreshedToken);
+        const userID = userData.payload.id;
 
         const classes = await Class.find({userID: userID});
-        res.status(200).json({classes: classes, token: refreshedToken});
+        res.status(200).json({classes: classes, jwtToken: refreshedToken});
     }
     catch(err){
         res.status(500).json({error: err.message});
     }
 };
 
-
 exports.getClassWithChapters = async (req, res) => {
     try {
         const { classID, jwtToken } = req.body;
+
+        if (!tokenController.verifyToken(jwtToken)) {
+            return res.status(401).json({ msg: "Invalid authentication token." });
+        }
         
         // Verify JWT and get user ID
         const refreshedToken = tokenController.refreshToken(jwtToken);

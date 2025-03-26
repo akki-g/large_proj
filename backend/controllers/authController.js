@@ -115,9 +115,7 @@ exports.verifyEmail = async (req, res) => {
 
 
 //login
-
 exports.login = async (req, res) => {
-
     try {
         const {email, password} = req.body;
 
@@ -140,10 +138,8 @@ exports.login = async (req, res) => {
         }
 
         const payload = {
-            user: {
-                id: user.userID,
-                email : user.email
-            }
+            id: user.userID,
+            email : user.email
         };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "1h"});
