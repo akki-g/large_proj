@@ -18,7 +18,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       appBar: AppBar(
         title: const Text(
           'Reset Password',
-          style: TextStyle(color: Color(0xFF2D6169), fontWeight: FontWeight.bold),
+          style: TextStyle(color: Color(0xFF2D6169), fontWeight: FontWeight.bold, fontSize: 24),
         ),
         backgroundColor: const Color(0xFFF9E0C6),
         iconTheme: const IconThemeData(color: Color(0xFF2D6169)),
@@ -48,7 +48,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               children: [
                 const Text(
                   'Enter your email.',
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
                 TextField(
