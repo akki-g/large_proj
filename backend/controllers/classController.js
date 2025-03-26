@@ -212,7 +212,7 @@ exports.searchClass = async (req, res, next) => {
         // Verify JWT and get user ID
         const refreshedToken = tokenController.refreshToken(jwtToken);
         const userData = tokenController.getTokenData(refreshedToken);
-        const userID = userData.payload.user.id;
+        const userID = userData.user.id;
         
         if (!userID) {
             return res.status(401).json({ msg: "Invalid authentication token." });
@@ -246,13 +246,14 @@ exports.modifyClass = async (req, res, next) => {
         }
 
         const targetClass = await Class.findOneAndUpdate(
-            { "_id": classID, "userID": (tokenController.getTokenData(refreshedToken)).payload.id },
+            { "_id": classID, "userID": (tokenController.getTokenData(refreshedToken)).user.id },
             {name, number, syllabus}
         );
 
         if (!targetClass) {
             return res.status(400).json({msg: "Class not found."});
         }
+        const refreshedToken = tokenController.refreshToken(jwtToken);
 
         res.status(200).json({ 
             message: "Class updated.",
@@ -270,12 +271,17 @@ exports.deleteClass = async (req, res, newToken) => {
     try {
         const {classID, jwtToken} = req.body;
 
-        const deleted = await Class.findOneAndDelete({"_id": classID, "userID": (tokenController.getTokenData(refreshedToken)).payload.id});
+        const refreshedToken = tokenController.refreshToken(jwtToken); // Fixed: Define before using
+        const userData = tokenController.getTokenData(refreshedToken);
 
+       const deleted = await Class.findOneAndDelete({ 
+            "_id": classID, 
+            "userID": userData.user.id 
+        });
+        
         if (!deleted) {
             return res.status(400).json({msg: "Class not found."});
         }
-
         res.status(200).json({ 
             message: "Class deleted.",
             jwtToken: refreshedToken
@@ -296,14 +302,13 @@ exports.getAllClasses = async (req, res) => {
         const userID = userData.user.id;
         const refreshedToken = tokenController.refreshToken(token);
 
-        const classes = await Class.findOne({userID : userID});
+        const classes = await Class.find({userID : userID}); // Changed findOne to find
         res.status(200).json({classes: classes, token: refreshedToken});
     }
     catch(err){
         res.status(500).json({error: err.message});
     }
 };
-
 
 exports.getClassWithChapters = async (req, res) => {
     try {
