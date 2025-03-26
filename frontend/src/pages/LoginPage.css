@@ -151,3 +151,27 @@ body, html {
   .transparent-button:focus {
     outline: none; /* Ensure there's no outline on focus */
   }
+
+  .passwordRequirements {
+    margin-top: 5px;
+    text-align: left;
+    font-size: 12px;
+}
+
+.passwordErrorList {
+    margin: 5px 0;
+    padding-left: 20px;
+    color: #e53935;
+}
+
+.passwordError {
+    color: #e53935;
+    font-size: 12px;
+    margin: 2px 0;
+}
+
+.passwordValid {
+    color: #43a047;
+    font-size: 12px;
+    margin: 2px 0;
+}
