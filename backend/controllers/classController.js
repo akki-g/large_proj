@@ -202,10 +202,10 @@ exports.createClass = async (req, res) => {
 // search and return set of classes, given keyword
 exports.searchClass = async (req, res, next) => {
     try {
-        const { query, jwtToken } = req.body;
+        const { classID, jwtToken } = req.body;
 
         // Validate input
-        if (!query) {
+        if (!classID) {
             return res.status(400).json({ msg: "Class ID is required." });
         }
 
@@ -219,12 +219,9 @@ exports.searchClass = async (req, res, next) => {
         }
 
 
-        const classes = await Class.find({
-            userID: userID,
-            $or : [
-                { chapterName: { $regex: query, $options: 'i' } },
-                { summary: { $regex: query, $options: 'i' } }
-            ]
+        const chapters = await Chapter.find({
+            classID: classID,
+            userID: userID
         }).sort({ _id: 1 }); 
 
         res.status(200).json({ 
@@ -271,7 +268,7 @@ exports.modifyClass = async (req, res, next) => {
 // pass in the mongodb ID as classID
 exports.deleteClass = async (req, res, newToken) => {
     try {
-        const {classID, jwtToken} = req.body
+        const {classID, jwtToken} = req.body;
 
         const deleted = await Class.findOneAndDelete({"_id": classID, "userID": (tokenController.getTokenData(refreshedToken)).payload.id});
 
@@ -294,12 +291,12 @@ exports.deleteClass = async (req, res, newToken) => {
 //get all classes
 exports.getAllClasses = async (req, res) => {
     try{
-        const token = req.body.token;
+        const token = req.query.token;
         const userData = tokenController.getTokenData(token);
         const userID = userData.user.id;
         const refreshedToken = tokenController.refreshToken(token);
 
-        const classes = await Class.find({userID: userID});
+        const classes = await Class.findOne({userID : userID});
         res.status(200).json({classes: classes, token: refreshedToken});
     }
     catch(err){
