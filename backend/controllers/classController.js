@@ -314,7 +314,7 @@ exports.getAllClasses = async (req, res) => {
 
 exports.getClassWithChapters = async (req, res) => {
     try {
-        const { classID, jwtToken } = req.body;
+        const { classID, jwtToken } = req.query;
         
         // Verify JWT and get user ID
         const userData = tokenController.getTokenData(jwtToken);
