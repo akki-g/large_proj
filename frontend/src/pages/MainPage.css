@@ -1,0 +1,75 @@
+/* MainPage.css */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f5f1e9;
+    font-family: Arial, sans-serif;
+  }
+  
+  .main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 60px; /* Space for navbar */
+  }
+  
+  .content-container {
+    width: 90%;
+    max-width: 800px;
+  }
+  
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  h1 {
+    font-size: 24px;
+    margin: 0;
+  }
+  
+  .add-syllabi-btn {
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .add-syllabi-btn:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .course-card {
+    background-color: #e1e1e1;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .course-info h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+  
+  .course-info p {
+    margin: 5px 0;
+    color: #666;
+  }
+  
+  .progress-bar {
+    background-color: #ccc;
+    height: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+  
+  .progress {
+    height: 100%;
+    background-color: #4caf50;
+    transition: width 0.5s ease-in-out;
+  }
