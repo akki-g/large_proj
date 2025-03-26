@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'register.dart';
 import 'home.dart';
+import 'forgot_password.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -177,18 +178,32 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text("Login", style: TextStyle(fontSize: 16)),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Column(
                   children: [
-                    Text("Don't have an account?", style: TextStyle(color: Colors.black)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Don't have an account?", style: TextStyle(color: Colors.black)),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => RegisterScreen()),
+                            );
+                          },
+                          child: Text("Register", style: TextStyle(color: Color(0xFFA5370D))),
+                        ),
+                      ],
+                    ),
                     TextButton(
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => RegisterScreen()),
+                          MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
                         );
                       },
-                      child: Text("Register", style: TextStyle(color: Color(0xFFA5370D))),
+                      child: Text("Forgot Password", style: TextStyle(color: Color(0xFFA5370D)),
+                      ),
                     ),
                   ],
                 ),
