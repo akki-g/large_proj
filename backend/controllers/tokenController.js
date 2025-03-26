@@ -28,7 +28,9 @@ exports.refreshToken = (token) => {
 
 exports.getTokenData = (token) => {
     try {
-        return jwt.verify(token, JWT_SECRET);
+        const payload = jwt.verify(token, JWT_SECRET)
+        console.log("Payload data:", payload);
+        return payload;
     }
     catch (err) {
         console.error("Error getting token data:", err);
