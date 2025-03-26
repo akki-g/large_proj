@@ -304,6 +304,7 @@ exports.getAllClasses = async (req, res) => {
     }
 };
 
+
 exports.getClassWithChapters = async (req, res) => {
     try {
         const { classID, jwtToken } = req.body;
