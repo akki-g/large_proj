@@ -202,10 +202,10 @@ exports.createClass = async (req, res) => {
 // search and return set of classes, given keyword
 exports.searchClass = async (req, res, next) => {
     try {
-        const { classID, jwtToken } = req.body;
+        const { query, jwtToken } = req.body;
 
         // Validate input
-        if (!classID) {
+        if (!query) {
             return res.status(400).json({ msg: "Class ID is required." });
         }
 
@@ -219,9 +219,12 @@ exports.searchClass = async (req, res, next) => {
         }
 
 
-        const chapters = await Chapter.find({
-            classID: classID,
-            userID: userID
+        const classes = await Class.find({
+            userID: userID,
+            $or : [
+                { chapterName: { $regex: query, $options: 'i' } },
+                { summary: { $regex: query, $options: 'i' } }
+            ]
         }).sort({ _id: 1 }); 
 
         res.status(200).json({ 
@@ -296,7 +299,7 @@ exports.getAllClasses = async (req, res) => {
         const userID = userData.user.id;
         const refreshedToken = tokenController.refreshToken(token);
 
-        const classes = await Class.findOne({userID : userID});
+        const classes = await Class.find({userID: userID});
         res.status(200).json({classes: classes, token: refreshedToken});
     }
     catch(err){
