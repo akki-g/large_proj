@@ -310,9 +310,9 @@ exports.getClassWithChapters = async (req, res) => {
         const { classID, jwtToken } = req.body;
         
         // Verify JWT and get user ID
-        const userData = tokenController.getTokenData(token);
+        const userData = tokenController.getTokenData(jwtToken);
         const userID = userData.user.id;
-        const refreshedToken = tokenController.refreshToken(token);
+        const refreshedToken = tokenController.refreshToken(jwtToken);
 
         // Find the class and populate the chapters
         const classWithChapters = await Class.findOne({
