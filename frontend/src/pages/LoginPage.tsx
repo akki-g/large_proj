@@ -69,8 +69,8 @@ const LoginPage: React.FC = () => {
             placeholder="Password"
           />
         </div>
-        <Link to="/forgot-password" className="transparent-button" style={{ marginBottom: '10px', display: 'block', textAlign: 'center' }}>
-          Forgot Password?
+        <Link to="/forgot-password" className="transparent-button" style={{ marginBottom: '10px', textAlign: 'center' }}>
+        Forgot Password?
         </Link>
         {error && <p className="error">{error}</p>}
         {message && <p className="success">{message}</p>}
