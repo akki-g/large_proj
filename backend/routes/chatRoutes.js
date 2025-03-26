@@ -1,3 +1,5 @@
+/*
+
 const express = require('express');
 const router = express.Router();
 const { sendMessage, getChats, getChatById, deleteChat } = require('../controllers/chatController');
@@ -13,3 +15,5 @@ router.get('/detail', getChatById);
 router.post('/delete', jsonParser, deleteChat);
 
 module.exports = router;
+
+*/

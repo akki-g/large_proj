@@ -1,3 +1,5 @@
+/*
+
 const Chat = require('../models/Chat');
 const Class = require('../models/Class');
 const Chapter = require('../models/Chapter');
@@ -335,3 +337,5 @@ If they ask questions not related to their educational data, you can still help 
         return `I'm sorry, I encountered an error processing your request. Please try again later.`;
     }
 }
+
+*/
