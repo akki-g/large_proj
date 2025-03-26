@@ -127,6 +127,7 @@ async function generateChapterSummaries(chapterNames, className) {
 exports.createClass = async (req, res) => {
     try {
       const { name, number, jwtToken } = req.body;
+      console.log("Request body:", req.body);
       const syllabus = req.file;
   
         if (!name || !number || !syllabus) {
