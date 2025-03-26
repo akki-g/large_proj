@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'register.dart';
 import 'home.dart';
@@ -65,6 +66,12 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final token = data['token'];
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
+        
         setState(() => _errorText = null);
         Navigator.pushReplacement(
           context,

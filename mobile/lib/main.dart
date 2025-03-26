@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: Colors.green,
+        primaryColor: Colors.white,
         colorScheme: ColorScheme.fromSwatch().copyWith(primary: Color(0xFF152555)),
       ),
       home: LoginScreen(),

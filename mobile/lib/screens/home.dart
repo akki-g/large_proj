@@ -3,9 +3,29 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 import 'login.dart';
+import 'chatbot.dart';
+import 'courses.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _screens = [
+    CoursesScreen(),
+    ChatBotScreen(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   void _confirmLogout(BuildContext context) {
     showCupertinoDialog(
@@ -81,7 +101,38 @@ class HomePage extends StatelessWidget {
                   ],
                 ),
               ),
+              PopupMenuItem(
+                value: 'profile',
+                child: Row(
+                  children: [
+                    Icon(Icons.account_box, color: Colors.black),
+                    SizedBox(width: 8),
+                    Text('Profile'),
+                  ],
+                ),
+              ),
             ],
+          ),
+        ],
+      ),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _screens,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.white,
+        selectedItemColor: Color(0xFF152555),
+        unselectedItemColor: Colors.grey,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.android),
+            label: 'Chatbot',
           ),
         ],
       ),
