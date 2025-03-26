@@ -132,6 +132,7 @@ exports.createClass = async (req, res) => {
         if (!name || !number || !syllabus) {
             return res.status(400).json({ msg: "All fields are required." });
         } 
+        console.log("API token:", jwtToken);
         const userData = tokenController.getTokenData(jwtToken);
         const refreshedToken = tokenController.refreshToken(jwtToken);
         console.log("Token data:", userData);
