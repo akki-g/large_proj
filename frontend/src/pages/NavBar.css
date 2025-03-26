@@ -1,0 +1,64 @@
+/* NavBar.css */
+.navbar-custom {
+    width: 100%;            /* Full width */
+    padding: 0.5rem 2rem;   /* Added space on the left and right */
+    background-color: #f8f9fa;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;          /* Ensure it stays on top */
+  }
+  
+  .navbar-custom .logo {
+    height: 40px;            /* Square logo, fixed size */
+    width: 40px;             /* Same width as height for a square shape */
+    object-fit: cover;       /* Ensures the logo stays inside the square */
+  }
+  
+  .navbar-custom .app-name {
+    font-family: 'DynaPuff', cursive;
+    font-size: 24px;
+    font-weight: bold;
+    color: #2d6169;
+    margin-left: 10px;       /* Moves the text further right */
+    white-space: nowrap;     /* Prevents text from wrapping */
+  }
+  
+  .navbar-custom .icon-button {
+    border: none;            /* Remove border from buttons */
+    margin-right: 10px;      /* Adds space between buttons */
+  }
+  
+  .navbar-custom .icon {
+    width: 30px;             /* Set size for the icon images */
+    height: 30px;
+  }
+  
+  .navbar-custom .logout-button {
+    padding: 0;              /* Remove padding for logout button */
+    border: none;
+    display: flex;           /* Ensure the icon is centered */
+    justify-content: center; /* Center the icon inside the button */
+    align-items: center;     /* Center the icon vertically */
+    height: 35px;            /* Set a fixed height */
+    width: 35px;             /* Set a fixed width */
+  }
+  
+  .navbar-custom .logout-icon {
+    width: 25px;             /* Set smaller size for the logout icon */
+    height: 25px;            /* Set smaller size for the logout icon */
+  }
+  
+  /* Center the logo and app name */
+  .navbar-custom .center-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;      /* Absolutely position the container */
+    left: 50%;               /* Position at the middle of the screen */
+    transform: translateX(-50%); /* Offset by half its width to truly center */
+  }
+  
+  .navbar-custom .center-container .logo {
+    margin-right: 10px;      /* Adds space between logo and app name */
+  }

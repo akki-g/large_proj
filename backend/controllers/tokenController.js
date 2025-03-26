@@ -1,34 +1,64 @@
 const jwt = require('jsonwebtoken');
 
-//check if the token is expired or otherwise invalid
-exports.isTokenInvalid = function (token) {
-    var isError = jwt.verify(token, process.env.JWT_SECRET,
-    (err, verifiedJwt) => {
-        if (err) {
-            return true;
-        } else {
-            return false;
-        }
-    });
+const JWT_SECRET = process.env.JWT_SECRET;
 
-    return isError;
+exports.createToken = (payload) => {
+    return jwt.sign(
+        { payload },
+        JWT_SECRET,
+        { expiresIn: '1h' }
+    );
 }
 
-
-//return refreshed token on completed action
-exports.tokenRefresh = function (token) {
-    var oldTokenData = jwt.decode(token, {complete:true});
-
-    const newPayload = {
-        id: oldTokenData.payload.id,
-        email: oldTokenData.payload.email
-    };
-
-    return jwt.sign(newPayload, process.env.JWT_SECRET, {expiresIn: "1h"});
+exports.refreshToken = (token) => {
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        return this.createToken(decoded.user);
+    }
+    catch (err) {
+        console.error("Error refreshing token:", err);
+        return token;
+    }
 }
 
+exports.getTokenData = (token) => {
+    try {
+        return jwt.verify(token, JWT_SECRET);
+    }
+    catch (err) {
+        console.error("Error getting token data:", err);
+        return null;
+    }
+}
 
-//gets the decoded token data, which you're probably going to want to do often
-exports.getTokenData = function (token) {
-    return (jwt.decode(token, {complete:true}));
+exports.verifyToken = (token) => {
+    try{
+        jwt.verify(token, JWT_SECRET);
+        return true;
+    }
+    catch (err) {
+        console.error("Error verifying token:", err);
+        return false;
+    } 
+}
+
+exports.authenticateToken = (req, res, next) => {
+    const token = req.body.jwtToken ||
+        req.query.jwtToken ||
+        req.headers['authorization']?.split(' ')[1];
+    
+    if (!token) {
+        return res.status(401).json({msg: "No token provided"});
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+
+        req.user = decoded.payload;
+        req.refreshedToken = this.refreshToken(token);
+        next();
+    } catch (err) {
+        console.error("Error authenticating token:", err);
+        return res.status(401).json({msg: "Invalid token"});
+    }
 }
