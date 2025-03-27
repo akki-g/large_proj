@@ -9,6 +9,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ChatPage from './pages/ChatPage';  // Import the ChatPage component
 import SyUploadPage from './pages/SyUploadPage';
+import CoursePage from './pages/CoursePage';
 
 
 const App: React.FC = () => {
