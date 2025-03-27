@@ -1,4 +1,3 @@
-/*
 
 const express = require('express');
 const router = express.Router();
@@ -15,5 +14,3 @@ router.get('/detail', getChatById);
 router.post('/delete', jsonParser, deleteChat);
 
 module.exports = router;
-
-*/

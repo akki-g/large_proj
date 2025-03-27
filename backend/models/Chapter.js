@@ -8,7 +8,7 @@ const chapterSchema = new Schema({
   className: { type: String, required: true },
   classID: { type: String, required: true },
   summary : { type: String, required: false },
-  quiz: [{ type: Schema.Types.ObjectId, ref: 'Quiz' }],
+  quiz: [{ type: Schema.Types.ObjectId, ref: 'Question' }],
   userID: { type: String, required: true } // Alternatively, you might reference the User _id
 
 });
