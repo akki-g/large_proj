@@ -8,6 +8,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ChatPage from './pages/ChatPage';  // Import the ChatPage component
+import SyUploadPage from './pages/SyUploadPage';
 
 
 const App: React.FC = () => {
@@ -27,6 +28,9 @@ const App: React.FC = () => {
         {/* Main Page Route */}
         <Route path="/main" element={<MainPage />} /> {}
         <Route path="/chat" element={<ChatPage />} /> {}
+        <Route path="/upload" element={<SyUploadPage />} />
+
+        
 
       </Routes>
     </Router>
