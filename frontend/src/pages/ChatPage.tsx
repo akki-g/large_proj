@@ -3,6 +3,9 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import NavBar from './NavBar';
 import './ChatPage.css';
+// Import the markdown rendering library and its types
+import ReactMarkdown from 'react-markdown';
+import { Components } from 'react-markdown';
 
 // Constants
 const API_BASE_URL = 'https://api.scuba2havefun.xyz/api';
@@ -34,6 +37,44 @@ const ChatPage: React.FC = () => {
   // State for educational context
   const [classes, setClasses] = useState<any[]>([]);
   const [showEducationalContext, setShowEducationalContext] = useState<boolean>(false);
+
+  // Define markdown components
+  const markdownComponents: Components = {
+    code({ node, className, children, ...props }) {
+      const match = /language-(\w+)/.exec(className || '');
+      const isInline = !match;
+      
+      if (!isInline) {
+        const language = match ? match[1] : '';
+        const codeContent = String(children).replace(/\n$/, '');
+        
+        const copyToClipboard = () => {
+          navigator.clipboard.writeText(codeContent);
+        };
+        
+        return (
+          <div className="code-block-container">
+            <div className="code-block-header">
+              <span className="code-language">{language}</span>
+              <button 
+                className="copy-code-btn"
+                onClick={copyToClipboard}
+              >
+                Copy
+              </button>
+            </div>
+            <pre>
+              <code className={className} {...props}>{children}</code>
+            </pre>
+          </div>
+        );
+      }
+      
+      return (
+        <code className={className} {...props}>{children}</code>
+      );
+    }
+  };
 
   // Check if user is logged in and fetch data
   useEffect(() => {
@@ -76,7 +117,7 @@ const ChatPage: React.FC = () => {
   const fetchChats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://api.scuba2havefun.xyz/api/chat/list', {
+      const response = await axios.get(`${API_BASE_URL}/chat/list`, {
         params: { jwtToken: token }
       });
       setChats(response.data.chats);
@@ -96,7 +137,7 @@ const ChatPage: React.FC = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://api.scuba2havefun.xyz/api/chat/detail', {
+      const response = await axios.get(`${API_BASE_URL}/chat/detail`, {
         params: { chatId, jwtToken: token }
       });
       setCurrentChat(response.data.chat);
@@ -192,7 +233,7 @@ const ChatPage: React.FC = () => {
     
     try {
       const token = localStorage.getItem('token');
-      await axios.post('https://api.scuba2havefun.xyz/api/chat/delete', {
+      await axios.post(`${API_BASE_URL}/chat/delete`, {
         chatId,
         jwtToken: token
       });
@@ -311,7 +352,15 @@ const ChatPage: React.FC = () => {
               <>
                 {currentChat.messages.map((msg, index) => (
                   <div key={index} className={`message ${msg.sender}`}>
-                    <div className="message-content">{msg.content}</div>
+                    <div className="message-content">
+                      {msg.sender === 'assistant' ? (
+                        <ReactMarkdown components={markdownComponents}>
+                          {msg.content}
+                        </ReactMarkdown>
+                      ) : (
+                        <div>{msg.content}</div>
+                      )}
+                    </div>
                     {msg.timestamp && (
                       <div className="message-timestamp">
                         {formatDate(msg.timestamp)}

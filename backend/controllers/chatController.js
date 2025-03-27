@@ -292,9 +292,14 @@ async function processWithAI(message, chatHistory, userId = null) {
 
 ${formattedContext}
 
-When responding to the user, utilize this context to provide personalized assistance. If they ask about their classes, chapters, or other educational content, refer to this information.
-If they ask questions not related to their educational data, you can still help with general educational topics. Always be helpful, concise, and educational.`;
+When responding to the user:
+1. Utilize this context to provide personalized assistance
+2. Format your responses using markdown for readability
+3. Use headings (###) for sections, bullet points for lists, and code blocks for any code or technical content
+4. Be concise but comprehensive, organizing information in a clear, hierarchical structure
+5. If they ask about their classes, chapters, or other educational content, refer to this information
 
+If they ask questions not related to their educational data, you can still help with general educational topics. Always be helpful, educational, and format your responses for easy reading.`;
             const response = await axios.post('https://api.openai.com/v1/chat/completions', {
                 model: 'gpt-4o-mini', // Using the model specified in your class controller
                 messages: [
@@ -317,19 +322,21 @@ If they ask questions not related to their educational data, you can still help 
         } else {
             // Fallback if no API key is set
             // Create a simple response that references the user's data if available
-            let response = `I received your message: "${message}". I'm Syllab.AI, and I'm here to help with your educational needs.`;
+            let response = `# Welcome to Syllab.AI\n\nI received your message: "${message}". I'm Syllab.AI, and I'm here to help with your educational needs.`;
             
             if (userContext.classes && userContext.classes.length > 0) {
-                response += ` I can see you have ${userContext.classes.length} classes, including ${userContext.classes[0].name}.`;
+                response += `\n\n### Your Classes\nI can see you have ${userContext.classes.length} classes, including:\n`;
+                userContext.classes.slice(0, 3).forEach(cls => {
+                    response += `- **${cls.name}** (${cls.number})\n`;
+                });
             }
             
             if (userContext.chapters && userContext.chapters.length > 0) {
-                response += ` You're working with chapters like "${userContext.chapters[0].name}".`;
+                response += `\n\n### Your Chapter Materials\nYou're working with chapters like:\n`;
+                userContext.chapters.slice(0, 3).forEach(chapter => {
+                    response += `- **${chapter.name}** in ${chapter.className}\n`;
+                });
             }
-            
-            response += " How can I assist you further with your courses or study materials?";
-            
-            return response;
         }
     } catch (error) {
         console.error('Error calling AI service:', error);
