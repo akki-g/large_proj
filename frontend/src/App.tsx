@@ -29,7 +29,7 @@ const App: React.FC = () => {
         <Route path="/main" element={<MainPage />} /> {}
         <Route path="/chat" element={<ChatPage />} /> {}
         <Route path="/upload" element={<SyUploadPage />} />
-
+        <Route path="/course" element={<CoursePage />} />
         
 
       </Routes>
