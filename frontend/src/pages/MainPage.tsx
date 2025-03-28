@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import NavBar from '../pages/NavBar';  // Importing the NavBar component
-import './MainPage.css';  // Import CSS styles
+import NavBar from '../pages/NavBar'; // Import NavBar component
+import './MainPage.css'; // Import CSS styles
 
 interface ClassData {
   _id: string;
@@ -13,11 +13,6 @@ interface ClassData {
 
 const MainPage: React.FC = () => {
   const navigate = useNavigate();
-
-  const handleAddSyllabusClick = () => {
-    navigate('/upload');
-  };
-
   const [classes, setClasses] = useState<ClassData[]>([]);
 
   useEffect(() => {
@@ -50,61 +45,34 @@ const MainPage: React.FC = () => {
     fetchClasses();
   }, []);
 
-  const handleDeleteClass = async (classID: string) => {
-    try {
-      const jwtToken = localStorage.getItem('token');
-      if (!jwtToken) {
-        console.error('No JWT token found. Please log in.');
-        return;
-      }
-
-      const response = await axios.post(
-        'https://api.scuba2havefun.xyz/api/classes/deleteClass',
-        { classID, jwtToken }
-      );
-
-      if (response.status === 200) {
-        setClasses(classes.filter((classItem) => classItem._id !== classID));
-      }
-    } catch (error) {
-      console.error('Error deleting class:', error);
-    }
+  const handleClassClick = (classID: string) => {
+    navigate(`/course/${classID}`);
   };
 
   return (
     <div>
       <NavBar />
       <div className="main-page__container">
-        <h1 className="main-page__header">Welcome to your dashboard ! </h1>
+        <h1 className="main-page__header">Welcome to your dashboard!</h1>
         <div className="main-page__content-container">
           {classes.length > 0 ? (
             classes.map((classItem: ClassData) => (
-              <div className="main-page__course-card" key={classItem._id}>
+              <div
+                key={classItem._id}
+                className="main-page__course-card"
+                onClick={() => handleClassClick(classItem._id)}
+              >
                 <div className="main-page__course-info">
                   <h2 className="main-page__class">{classItem.name}</h2>
                   <p>Class Number: {classItem.number}</p>
                   <p>Modules: {classItem.modules}</p>
                 </div>
-                {/* Updated delete button with trash icon */}
-                <button
-                  onClick={() => handleDeleteClass(classItem._id)}
-                  className="main-page__delete-btn"
-                >
-                  <img src="/trash.png" alt="Delete" className="main-page__delete-icon" />
-                </button>
               </div>
             ))
           ) : (
             <p>No classes found. Check the console for details.</p>
           )}
         </div>
-      </div>
-
-      {/* Add Syllabus Button at the bottom-right */}
-      <div className="main-page__add-syllabus-container">
-        <button onClick={handleAddSyllabusClick} className="main-page__add-syllabi-btn">
-          + Add Syllabus
-        </button>
       </div>
     </div>
   );

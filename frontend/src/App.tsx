@@ -9,6 +9,8 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ChatPage from './pages/ChatPage';  // Import the ChatPage component
 import SyUploadPage from './pages/SyUploadPage';
+import CoursePage from './pages/CoursePage';
+
 
 
 const App: React.FC = () => {
@@ -29,8 +31,7 @@ const App: React.FC = () => {
         <Route path="/main" element={<MainPage />} /> {}
         <Route path="/chat" element={<ChatPage />} /> {}
         <Route path="/upload" element={<SyUploadPage />} />
-
-        
+        <Route path="/course/:classID" element={<CoursePage />} />
 
       </Routes>
     </Router>
