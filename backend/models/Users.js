@@ -28,6 +28,16 @@ const userSchema = new Schema({
         required: true,
         unique: true
     },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    verificationToken: {
+        type: String
+    },
+    verificationTokenExpires: {
+        type: Date
+    }
 });
 
 

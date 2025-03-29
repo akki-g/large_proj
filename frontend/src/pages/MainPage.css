@@ -1,0 +1,128 @@
+/* MainPage.css */
+
+/* Ensure these styles are applied globally */
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #000000; /* Black background */
+  font-family: Arial, sans-serif;
+}
+
+/* Main container for the whole page */
+.main-page__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center content horizontally */
+  padding-top: 100px; /* Space for Navbar */
+  width: 100vw; /* Full width */
+  height: 100vh; /* Full height */
+  box-sizing: border-box;
+}
+
+/* Content container for the class list */
+.main-page__content-container {
+  width: 90%; /* Optional: Make it slightly narrower */
+  max-width: 1000px; /* Limit width to prevent it from getting too wide */
+  padding-top: 10px;
+}
+
+/* Styling for each course card */
+.main-page__course-card {
+  background-color: #f5e6d9;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%; /* Full width of the container */
+  box-sizing: border-box;
+}
+
+/* Styling for the page title */
+.main-page__header {
+  font-family: 'DynaPuff', cursive;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #99d4dd;
+  text-align: center;
+  width: 100%;
+  padding-left: 20px;
+  padding-top: 10px;
+  padding-bottom: 20px;
+}
+
+/* Styling for the Add Syllabus Button (Fixed at the bottom right) */
+.main-page__add-syllabus-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100; /* Ensure it stays above other elements */
+}
+
+.main-page__add-syllabi-btn {
+  background-color:#cc4514;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.main-page__add-syllabi-btn:hover {
+  background-color: #16163d;
+}
+
+.main-page__class-name{
+  font-weight: bold;
+  color: #1c1c57
+}
+
+/* Optional: Add responsive styles for smaller screens */
+@media (max-width: 768px) {
+  .main-page__course-card {
+    max-width: 80%; /* Decreases the width on smaller screens */
+  }
+}
+
+/* Styling for course information within the course card */
+.main-page__course-info {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Styling for course name in the course card */
+.main-page__course-info h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+/* Styling for course details */
+.main-page__course-info p {
+  margin: 5px 0;
+  color: #666;
+}
+
+/* Styling for the delete button in each course card */
+.main-page__delete-btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Styling for the trash icon inside the delete button */
+.main-page__delete-icon {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+}
+
+.main-page__delete-btn:hover .main-page__delete-icon {
+  opacity: 0.7; /* Slightly transparent on hover */
+  filter: invert(30%) sepia(100%) saturate(500%) hue-rotate(-50deg);
+}

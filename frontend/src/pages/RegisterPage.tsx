@@ -1,7 +1,9 @@
-// RegisterPage.tsx
-import React, { useState, FormEvent } from 'react';
+import React, { useEffect, useState, FormEvent } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import './LoginPage.css'; // Import the CSS file
+
+const logo = "/logo.webp"; 
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -9,155 +11,185 @@ const RegisterPage: React.FC = () => {
   const [lastName, setLastName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const [passwordValid, setPasswordValid] = useState<boolean>(false);
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+
+  useEffect(() => {
+    validatePassword(password);
+  }
+  , [password]);
+
+  const validatePassword = (password: string) => {
+    const errors = [];
+
+    if (password.length < 8) {
+      errors.push('Password must be at least 8 characters');
+    }
+    if (!/[a-z]/.test(password)) {
+      errors.push('Password must contain at least one lowercase letter');
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push('Password must contain at least one uppercase letter');
+    }
+    if (!/[0-9]/.test(password)) {
+      errors.push('Password must contain at least one number');
+    }
+    if (!/[!@#$%^&*]/.test(password)) {
+      errors.push('Password must contain at least one special character');
+    }
+
+    setPasswordErrors(errors);
+    setPasswordValid(errors.length === 0);
+  }
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setMessage('');
+    
+    if (!passwordValid) {
+      setError('Password is invalid. Please check the requirements.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5001/api/auth/register', {
+      const response = await axios.post('https://api.scuba2havefun.xyz/api/auth/register', {
         firstName,
         lastName,
         email,
         password,
         phone,
+      }, 
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
-      setMessage(response.data.message);
-      // Optionally, navigate back to login after successful registration
-      // navigate('/login');
+      setMessage(response.data.msg || "Registration successful!");
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Something went wrong. Please try again.');
+      setError(err.response?.data?.error || err.response?.data?.msg || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={styles.container}>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <div style={styles.formGroup}>
-          <label htmlFor="firstName" style={styles.label}>First Name:</label>
+    <div className="container">
+      <div className="app-header">
+        <img src={logo} alt="App Logo" className="logo" />
+        <h2 className="app-name">Syllab.AI</h2>
+      </div>
+      <div className="horizontal-line"></div>
+      <h2 className='register-text'>Register</h2>
+      <form onSubmit={handleSubmit} className="form">
+        <div className="formGroup">
           <input
             type="text"
             id="firstName"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             required
-            style={styles.input}
+            className="input"
+            placeholder="First Name"
           />
         </div>
-        <div style={styles.formGroup}>
-          <label htmlFor="lastName" style={styles.label}>Last Name:</label>
+        <div className="formGroup">
           <input
             type="text"
             id="lastName"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             required
-            style={styles.input}
+            className="input"
+            placeholder="Last Name"
           />
         </div>
-        <div style={styles.formGroup}>
-          <label htmlFor="email" style={styles.label}>Email:</label>
+        <div className="formGroup">
           <input
             type="email"
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={styles.input}
+            className="input"
+            placeholder="Email"
           />
         </div>
-        <div style={styles.formGroup}>
-          <label htmlFor="password" style={styles.label}>Password:</label>
+        <div className="formGroup">
           <input
             type="password"
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={styles.input}
+            className="input"
+            placeholder="Password"
           />
+          {password.length > 0 && (
+            <div className="passwordRequirements">
+              {passwordErrors.length > 0 ? (
+                <ul className="passwordErrorList">
+                  {passwordErrors.map((err, index) => (
+                    <li key={index} className="passwordError">{err}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="passwordValid">Password meets all requirements</p>
+              )}
+            </div>
+          )}
         </div>
-        <div style={styles.formGroup}>
-          <label htmlFor="phone" style={styles.label}>Phone:</label>
+        <div className="formGroup">
+          <input
+            type="password"
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            className="input"
+            placeholder="Confirm Password"
+          />
+          {confirmPassword.length > 0 && password !== confirmPassword && (
+            <p className="passwordError">Passwords do not match</p>
+          )}
+        </div>
+        <div className="formGroup">
           <input
             type="text"
             id="phone"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             required
-            style={styles.input}
+            className="input"
+            placeholder="Phone Number"
           />
         </div>
-        {error && <p style={styles.error}>{error}</p>}
-        {message && <p style={styles.success}>{message}</p>}
-        <button type="submit" disabled={loading} style={styles.button}>
+        {error && <p className="error">{error}</p>}
+        {message && <p className="success">{message}</p>}
+        <button type="submit" disabled={loading} className="button">
           {loading ? 'Registering...' : 'Register'}
         </button>
       </form>
       <button
         onClick={() => navigate('/login')}
-        style={{ ...styles.button, marginTop: '10px', backgroundColor: '#28a745' }}
+        className='transparent-button'
       >
         Back to Login
       </button>
     </div>
   );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    maxWidth: '400px',
-    margin: '50px auto',
-    padding: '20px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    fontFamily: 'Arial, sans-serif',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  formGroup: {
-    marginBottom: '15px',
-  },
-  label: {
-    marginBottom: '5px',
-    fontWeight: 'bold',
-    display: 'block',
-  },
-  input: {
-    width: '100%',
-    padding: '8px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
-    boxSizing: 'border-box',
-  },
-  button: {
-    padding: '10px',
-    backgroundColor: '#007BFF',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-  },
-  error: {
-    color: 'red',
-    marginBottom: '10px',
-  },
-  success: {
-    color: 'green',
-    marginBottom: '10px',
-  },
 };
 
 export default RegisterPage;
