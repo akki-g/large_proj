@@ -18,7 +18,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _screens = [
     CoursesScreen(),
-    ChatBotScreen(),
+    ChatPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -58,6 +58,68 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showProfile(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Profile'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(radius: 30, backgroundColor: Colors.grey[300]),
+            SizedBox(height: 12),
+            Text('Name: John Doe'),
+            Text('Email: JohnDoe@example.com'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSettings(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Settings', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            SizedBox(height: 20),
+            SwitchListTile(
+              value: true,
+              onChanged: (_) {},
+              title: Text('Enable Notifications'),
+            ),
+            SwitchListTile(
+              value: false,
+              onChanged: (_) {},
+              title: Text('Dark Mode'),
+            ),
+            SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('Done'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,7 +150,17 @@ class _HomePageState extends State<HomePage> {
           PopupMenuButton<String>(
             icon: Icon(Icons.more_vert),
             onSelected: (value) {
-              if (value == 'logout') _confirmLogout(context);
+              if (value == 'logout') { 
+                _confirmLogout(context);
+              }  
+
+              else if (value == 'profile') {
+                _showProfile(context);
+              }
+
+              else if (value == 'settings') {
+                _showSettings(context);
+              }
             },
             itemBuilder: (context) => [
               PopupMenuItem(
@@ -108,6 +180,16 @@ class _HomePageState extends State<HomePage> {
                     Icon(Icons.account_box, color: Colors.black),
                     SizedBox(width: 8),
                     Text('Profile'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings, color: Colors.black),
+                    SizedBox(width: 8),
+                    Text('User Settings'),
                   ],
                 ),
               ),
