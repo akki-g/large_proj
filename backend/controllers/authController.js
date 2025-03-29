@@ -159,3 +159,94 @@ exports.login = async (req, res) => {
     }
 
 }
+
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        if (!email) {
+            return res.status(400).json({msg: "Email is required"});
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({msg: "No account with this email has been registered"});
+        }
+
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const resetTokenExpires = Date.now() + 3600000; // 1 hour
+
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = resetTokenExpires;
+        await user.save();
+
+        const transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.EMAIL_PASSWORD 
+            }
+        });
+
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: email,
+            subject: 'Syllab.Ai Password Reset Link',
+            text: `Hello ${user.firstName} ${user.lastName}, 
+
+            Please click on the link below to reset your password: 
+            https://www.scuba2havefun.xyz/reset-password?token=${resetToken}
+            
+            The link will expire in one hour.
+            Thank you,
+            Syllab.Ai Team`
+        };
+    
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error("Email sending error:", error);
+                return res.status(500).json({ msg: "Failed to send password reset email." });
+            }
+            res.status(200).json({
+                msg: "Password reset email has been sent to " + user.email
+            });
+        });
+    }
+    catch (err) {
+        res.status(500).json({error: err.message});
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token } = req.query;
+        const { newPassword } = req.body;
+
+        if (!token || !newPassword) {
+            return res.status(400).json({msg: "Invalid reset link or missing new password"});
+        }
+
+        const user = await User.findOne({ 
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({msg: "Password reset token is invalid or has expired."});
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(newPassword, salt);
+
+        user.password = passwordHash;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        res.status(200).json({msg: "Password has been reset successfully. Please login with your new password."});
+    }
+    catch (err) {
+        res.status(500).json({error: err.message});
+    }
+};

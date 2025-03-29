@@ -1,0 +1,9 @@
+.main-contents {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 60px; /* Space for navbar */
+    width: 800px;
+    background-color: #f9e0c6;
+    font-family: Arial, sans-serif;
+}

@@ -13,7 +13,12 @@ exports.createToken = (payload) => {
 exports.refreshToken = (token) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        return this.createToken(decoded.user);
+        const payloadData = decoded.payload ? decoded.payload.user : decoded.user;
+        return jwt.sign(
+            { user: payloadData },
+            JWT_SECRET, 
+            { expiresIn: '1h' }
+        );
     }
     catch (err) {
         console.error("Error refreshing token:", err);
@@ -23,7 +28,10 @@ exports.refreshToken = (token) => {
 
 exports.getTokenData = (token) => {
     try {
-        return jwt.verify(token, JWT_SECRET);
+        console.log("Get token data:", token);
+        const payload = jwt.verify(token, JWT_SECRET)
+        console.log("Payload data:", payload);
+        return payload;
     }
     catch (err) {
         console.error("Error getting token data:", err);
