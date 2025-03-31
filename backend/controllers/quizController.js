@@ -6,11 +6,11 @@ const tokenController = require('./tokenController');
 
 
 // Function to generate quiz questions
-async function generateQuiz(chapterName, chapterSummary, className, numQuestions = 10) {
+async function generateQuizQuestionsFromAI(chapterName, chapterSummary, className, numQuestions = 10) {
     try {
         const OPENAI_KEY = process.env.OPENAI_API_KEY;
 
-        const promt = 
+        const prompt = 
         `
         Generate ${numQuestions} multiple-choice quiz questions about "${chapterName}" for the class "${className}".
             Use this chapter summary as context: "${chapterSummary}"
