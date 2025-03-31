@@ -1,6 +1,7 @@
 import React, { useState, FormEvent } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import { Container, Row, Col } from 'react-bootstrap';
 
 const logo = "/logo.webp"; 
 
@@ -38,55 +39,73 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="container">
-      <div className="app-header">
-        <img src={logo} alt="App Logo" className="logo" />
-        <h2 className="app-name">Syllab.AI</h2>
-      </div>
-      <div className="horizontal-line"></div>
+    <Container fluid className="p-0 m-0 d-flex justify-content-center align-items-center vh-100">
+      <div className="container">
+        <Row>
+          <Col xs={12} className="app-header">
+            <img src={logo} alt="App Logo" className="logo" />
+            <h2 className="app-name">Syllab.AI</h2>
+          </Col>
+        </Row>
+        <div className="horizontal-line"></div>
 
-      <h2 className="login">Login</h2>
-      <form onSubmit={handleSubmit} className="form">
-        <div className="formGroup">
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="input"
-            placeholder="Email"
-          />
-        </div>
-        <div className="formGroup">
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="input"
-            placeholder="Password"
-          />
-        </div>
-        <Link to="/forgot-password" className="transparent-button" style={{ marginBottom: '10px', textAlign: 'center' }}>
-        Forgot Password?
-        </Link>
-        {error && <p className="error">{error}</p>}
-        {message && <p className="success">{message}</p>}
-        <button type="submit" disabled={loading} className="button">
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
-      <div className="registerContainer">
-        <p>
-          Don't have an account?{' '}
-          <Link to="/register" className="registerLink">
-            Register
-          </Link>
-        </p>
+        <h2 className="login">Login</h2>
+        <form onSubmit={handleSubmit} className="form">
+          <Row>
+            <Col xs={12}>
+              <div className="formGroup">
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="input w-100"
+                  placeholder="Email"
+                />
+              </div>
+            </Col>
+          </Row>
+          <Row>
+            <Col xs={12}>
+              <div className="formGroup">
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="input w-100"
+                  placeholder="Password"
+                />
+              </div>
+            </Col>
+          </Row>
+          <Row>
+            <Col xs={12} className="text-center">
+              <Link to="/forgot-password" className="transparent-button d-inline-block mb-2">
+                Forgot Password?
+              </Link>
+            </Col>
+          </Row>
+          {error && <p className="error">{error}</p>}
+          {message && <p className="success">{message}</p>}
+          <button type="submit" disabled={loading} className="button w-100">
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+        </form>
+        <Row className="mt-3">
+          <Col xs={12} className="registerContainer">
+            <p>
+              Don't have an account?{' '}
+              <Link to="/register" className="registerLink">
+                Register
+              </Link>
+            </p>
+          </Col>
+        </Row>
       </div>
-    </div>
+    </Container>
   );
 };
 
