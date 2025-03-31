@@ -44,7 +44,7 @@ async function generateQuizQuestionsFromAI(chapterName, chapterSummary, classNam
             temperature: 0.7
         }, {
             headers: {
-                'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                'Authorization': `Bearer ${OPENAI_KEY}`,
                 'Content-Type': 'application/json'
             }
         });
