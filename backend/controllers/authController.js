@@ -193,10 +193,11 @@ exports.forgotPassword = async (req, res) => {
             from: process.env.EMAIL,
             to: email,
             subject: 'Syllab.Ai Password Reset Link',
-            text: `Hello ${user.firstName} ${user.lastName}, 
+            text: `
+            Hello ${user.firstName} ${user.lastName}, 
 
-            Please click on the link below to reset your password: 
-            https://www.scuba2havefun.xyz/reset-password?token=${resetToken}
+                Please click on the link below to reset your password: 
+                https://www.scuba2havefun.xyz/reset-password?token=${resetToken}
             
             The link will expire in one hour.
             Thank you,

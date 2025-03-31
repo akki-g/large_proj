@@ -183,8 +183,7 @@ exports.submitQuiz = async (req, res) => {
         if (quizQuestions.length === 0) {
             return res.status(404).json({ msg: "No quiz questions found for this chapter" });
         }
-        
-        // Process each answer
+
         let correctCount = 0;
         const questionResults = [];
         
