@@ -305,7 +305,36 @@ exports.getAllClasses = async (req, res) => {
         const refreshedToken = tokenController.refreshToken(token);
 
         const classes = await Class.find({userID : userID}); // Changed findOne to find
-        res.status(200).json({classes: classes, token: refreshedToken});
+
+        const classesWithProgress = await Promise.all(classes.map(async (cls) => {
+            const chapters = await Chapter.find({
+                classID: cls._id.toString(),
+                userID: userID
+            });
+            
+            const totalChapters = chapters.length;
+            const completedChapters = chapters.filter(ch => ch.isCompleted).length;
+            const progressPercentage = totalChapters > 0 
+                ? Math.round((completedChapters / totalChapters) * 100) 
+                : 0;
+                
+            // Return the class with progress information
+            return {
+                _id: cls._id,
+                name: cls.name,
+                number: cls.number,
+                syllabus: cls.syllabus,
+                userID: cls.userID,
+                chapters: cls.chapters,
+                progress: {
+                    completedChapters,
+                    totalChapters,
+                    progressPercentage
+                }
+            };
+        }));
+
+        res.status(200).json({classes: classesWithProgress, token: refreshedToken});
     }
     catch(err){
         res.status(500).json({error: err.message});
