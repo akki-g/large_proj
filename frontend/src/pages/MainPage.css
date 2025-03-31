@@ -42,36 +42,54 @@ html, body {
 /* Styling for the page title */
 .main-page__header {
   font-family: 'DynaPuff', cursive;
-  font-size: 2rem;
+  font-size: 2rem !important;
   font-weight: bold;
   color: #99d4dd;
   text-align: center;
   width: 100%;
   padding-left: 20px;
-  padding-top: 10px;
+  padding-top: 20px;
   padding-bottom: 20px;
 }
-
-/* Styling for the Add Syllabus Button (Fixed at the bottom right) */
-.main-page__add-syllabus-container {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 100; /* Ensure it stays above other elements */
+/* Styling for the Add Syllabus Button (Directly Next to Welcome Message) */
+.main-page__header-container {
+  display: flex;
+  align-items: center; /* Align vertically */
+  justify-content: flex-start; /* Align items to the left */
+  margin-bottom: 20px;
 }
 
+.main-page__header {
+  margin-right: 10px; /* Add space between the header and button */
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Button Styling */
 .main-page__add-syllabi-btn {
-  background-color:#cc4514;
+  background-color: #cc4514;
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 20px 30px;
   font-size: 16px;
-  border-radius: 5px;
+  border-radius: 10px; /* Rounded button */
   cursor: pointer;
+  height: 50px; /* Match button height to the text */
+  line-height: 20px;
+  display: flex;
+  align-items: center; /* Align button text vertically */
 }
 
 .main-page__add-syllabi-btn:hover {
-  background-color: #16163d;
+  background-color: #b33b0f;
+}
+
+/* Styling for the Welcome Header */
+.main-page__header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .main-page__class-name{

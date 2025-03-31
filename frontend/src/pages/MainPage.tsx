@@ -49,11 +49,25 @@ const MainPage: React.FC = () => {
     navigate(`/course/${classID}`);
   };
 
+  const handleSyllabusClick = () => {
+    navigate('/upload');
+  };
+
   return (
     <div>
       <NavBar />
       <div className="main-page__container">
-        <h1 className="main-page__header">Welcome to your dashboard!</h1>
+        {/* Header and Syllabus Button Container */}
+        <div className="main-page__header-container">
+          <h1 className="main-page__header">Welcome to your dashboard!</h1>
+          {/* Syllabus Button */}
+          <button
+            className="main-page__add-syllabi-btn"
+            onClick={handleSyllabusClick}
+          >
+            + Add Syllabus
+          </button>
+        </div>
         <div className="main-page__content-container">
           {classes.length > 0 ? (
             classes.map((classItem: ClassData) => (
@@ -76,6 +90,5 @@ const MainPage: React.FC = () => {
       </div>
     </div>
   );
-};
-
+} 
 export default MainPage;
