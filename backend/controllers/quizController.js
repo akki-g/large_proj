@@ -85,7 +85,7 @@ exports.generateQuiz = async (req, res) => {
         }
 
         const userData = tokenController.getTokenData(jwtToken);
-        const userID = userData.user.ID;
+        const userID = userData.user.id;
         const refreshedToken = tokenController.refreshToken(jwtToken);
 
         if (!userID) {
