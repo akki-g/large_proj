@@ -1,5 +1,3 @@
-/* MainPage.css */
-
 /* Ensure these styles are applied globally */
 html, body {
   margin: 0;
@@ -51,6 +49,7 @@ html, body {
   padding-top: 20px;
   padding-bottom: 20px;
 }
+
 /* Styling for the Add Syllabus Button (Directly Next to Welcome Message) */
 .main-page__header-container {
   display: flex;
@@ -92,9 +91,9 @@ html, body {
   margin-bottom: 20px;
 }
 
-.main-page__class-name{
+.main-page__class-name {
   font-weight: bold;
-  color: #1c1c57
+  color: #1c1c57;
 }
 
 /* Optional: Add responsive styles for smaller screens */
@@ -144,3 +143,81 @@ html, body {
   opacity: 0.7; /* Slightly transparent on hover */
   filter: invert(30%) sepia(100%) saturate(500%) hue-rotate(-50deg);
 }
+
+/* Styling for the progress container */
+.main-page__progress-container {
+  display: flex;
+  align-items: center; /* Align progress bar and text vertically */
+  justify-content: flex-end; /* Align the progress bar and text to the right */
+  gap: 10px; /* Space between progress bar and text */
+  width: 100%; /* Full width of the container */
+}
+
+/* Styling for the progress bar */
+.progress {
+  width: 100%; /* Full width of the container */
+  max-width: 500px; /* Limit the width of the progress bar */
+  height: 30px; /* Make progress bar taller */
+  background-color: black; /* Empty space color */
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+/* Styling for the progress bar itself */
+.progress-bar {
+  height: 100%;
+  border-radius: 10px;
+}
+
+/* Styling for the progress text */
+.main-page__progress-text {
+  font-size: 18px; /* Larger font size for the text */
+  font-weight: bold;
+  color: rgb(0, 0, 0); /* White text color */
+  text-align: right; /* Ensure the text aligns with the progress bar */
+}
+/* Styling for the progress container */
+.main-page__progress-container {
+  display: flex;
+  align-items: center; /* Align progress bar and text vertically */
+  justify-content: flex-end; /* Align the progress bar and text to the right */
+  gap: 10px; /* Space between progress bar and text */
+  width: 100%; /* Full width of the container */
+  position: relative; /* Necessary for positioning the rocket image */
+}
+
+/* Styling for the progress bar */
+.progress {
+  width: 100%; /* Full width of the container */
+  max-width: 500px; /* Limit the width of the progress bar */
+  height: 30px; /* Make progress bar taller */
+  background-color: black; /* Empty space color */
+  border-radius: 10px;
+  box-sizing: border-box;
+  position: relative; /* Container for rocket image */
+}
+
+/* Styling for the progress bar itself */
+.progress-bar {
+  height: 100%;
+  border-radius: 10px;
+}
+
+/* Styling for the progress text */
+.main-page__progress-text {
+  font-size: 18px; /* Larger font size for the text */
+  font-weight: bold;
+  color: rgb(0, 0, 0); /* White text color */
+  text-align: right; /* Ensure the text aligns with the progress bar */
+}
+
+.rocket-icon {
+  position: absolute;
+  top: -12px; /* Adjust the vertical position */
+  right: 0; /* Position the rocket at the end of the progress */
+  width: 40px; /* Make the rocket bigger */
+  height: 40px; /* Make the rocket bigger */
+  transform: translateX(50%) rotate(90deg); /* Rotate the rocket by 90 degrees and center horizontally */
+  transition: right 0.3s ease-in-out; /* Smooth transition */
+}
+
