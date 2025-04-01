@@ -21,7 +21,7 @@ async function generateChapters(syllabusText) {
         `;
 
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-            model: 'gpt-4o-mini', // Using the latest available model
+            model: 'gpt-4o', // Using the latest available model
             messages: [
                 { 
                     role: 'system', 
@@ -74,11 +74,13 @@ async function generateChapterSummaries(chapterNames, className) {
         Chapter titles: ${chapterNames.join(', ')}
         Class name: ${className}
 
+        Make sure that each chapter summary is concise and relevant to the chapter title and at least 2 paragraphs long.
+
         Return the chapter summaries in JSON format as an array of strings, with each string corresponding to a chapter title.
         `;
 
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-            model: 'gpt-4o-mini',
+            model: 'gpt-4o',
             messages: [
                 { 
                     role: 'system', 

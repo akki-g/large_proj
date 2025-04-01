@@ -21,16 +21,18 @@ async function generateQuizQuestionsFromAI(chapterName, chapterSummary, classNam
             3. Indicate which option is correct (as the exact full text of the option, not just the number)
             4. Make sure questions are educational and test understanding of the material
             
-            Return the questions in JSON format as an array of objects, where each object has the following structure:
+            Return the questions in RAW JSON format as an array of objects, where each object has the following structure:
             {
                 "question": "The question text",
                 "options": ["option1", "option2", "option3", "option4"],
                 "correctOption": "The exact text of the correct option"
             }
+
+            IMPORTANT: Return ONLY the JSON array with no markdown formatting, code blocks, backticks, or explanations.
         `
 
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-            model: 'gpt-4o-mini',
+            model: 'gpt-4o',
             messages: [
                 { 
                     role: 'system', 
