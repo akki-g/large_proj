@@ -1,101 +1,189 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import NavBar from './NavBar'; // Import NavBar component
+import { Container, Row, Col, Button, Card, Accordion } from 'react-bootstrap';
+import NavBar from './NavBar';
 import './CoursePage.css';
 
 interface ChapterData {
-  isCompleted: boolean,
-  quizScore: number,
-  completedAt: Date,
-  attempts: number,
-  _id: string,
-  chapterName: string,
-  className: string,
-  classID: string,
-  summary: any,
-  userID: any,
-  quiz: never[]
+  isCompleted: boolean;
+  quizScore: number;
+  completedAt: Date;
+  attempts: number;
+  _id: string;
+  chapterName: string;
+  className: string;
+  classID: string;
+  summary: string;
+  userID: string;
+  quiz: string[];
+}
+
+interface ClassData {
+  _id: string;
+  name: string;
+  number: string;
+  chapters: ChapterData[];
 }
 
 const CoursePage: React.FC = () => {
   const navigate = useNavigate();
-  const { classID } = useParams<{ classID: string }>(); // Get classID from URL
-  const [result, setResult] = useState('');
+  const { classID } = useParams<{ classID: string }>();
+  const [classData, setClassData] = useState<ClassData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    console.log(`Class ID passed: ${classID}`); // ✅ Log classID to console
-
     const getClassContent = async () => {
       try {
-        let token = localStorage.getItem('token');
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        
         if (!token) {
-          console.error('No token found!');
+          setError('No authentication token found. Please login again.');
+          navigate('/login');
           return;
         }
 
-        // Fetch data using the classID from URL
         const response = await axios.get(
           `https://api.scuba2havefun.xyz/api/classes/classWithChapters?classID=${classID}&jwtToken=${token}`
         );
 
-        console.log('Class Contents:', response.data);
-        localStorage.setItem('token', response.data.jwtToken);
-        setResult(JSON.stringify(response.data)); // Store as string to parse later
-      } catch (error) {
-        console.error('Error fetching class contents:', error);
+        // Update token
+        if (response.data.jwtToken) {
+          localStorage.setItem('token', response.data.jwtToken);
+        }
+
+        if (response.data.class) {
+          setClassData(response.data.class);
+        } else {
+          setError('No class data found');
+        }
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Failed to load class content');
+        console.error('Error fetching class content:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
     if (classID) {
       getClassContent();
     }
-  }, [classID]);
+  }, [classID, navigate]);
 
   const handleQuizClick = (chapterID: string) => {
     navigate(`/course/${classID}/${chapterID}`);
   };
 
-  // Check if result is not empty before parsing
-  let res = result ? JSON.parse(result) : {};
-  let classString = JSON.stringify(res.class);
-  let classContent = classString ? JSON.parse(classString) : {};
-  let classNumber = classContent?.number || 'N/A';
-  let className = classContent?.name || 'N/A';
-  let chapters = classContent?.chapters || [];
+  const handleBackClick = () => {
+    navigate('/main');
+  };
 
-
-  console.log(`class name: ${classContent.name}`);
-
-  return(
-        <div>
-            <NavBar /> {/* Navbar will be displayed here */}
-            <div className="main-contents">
-            <button className="back-btn">Back</button>
-            {chapters.length > 0 ? (
-            chapters.map((chapter: ChapterData) => (
-                <div key={chapter._id} className="chapter-dropdown">
-                    <div className="chapter-container">
-                        <h2>{chapter.chapterName}</h2>
-                        <br/>
-                        <h3>Summary</h3>
-                        <br/>
-                        <p>{chapter.summary}</p>
-                        <button 
-                          className="quiz-button" 
-                          onClick={() => handleQuizClick(chapter._id)}>
-                            Take Quiz</button>
-                        <br/>
-                    </div>
-                    <br/>
-                </div>
-            ))
-            ) : (
-              <p>No content found. Check the console for details.</p>
-            )}
-            </div>
+  // Loading state
+  if (loading) {
+    return (
+      <div>
+        <NavBar />
+        <div className="course-page-container">
+          <div className="loading-spinner">Loading class content...</div>
         </div>
+      </div>
     );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div>
+        <NavBar />
+        <div className="course-page-container">
+          <div className="error-message">{error}</div>
+          <Button variant="primary" onClick={handleBackClick}>
+            Back to Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="course-page-wrapper">
+      <NavBar />
+      <Container fluid className="course-page-container">
+        <Row className="course-header">
+          <Col>
+            <Button 
+              variant="outline-secondary" 
+              className="back-button"
+              onClick={handleBackClick}
+            >
+              ← Back to Dashboard
+            </Button>
+            {classData && (
+              <div className="class-info">
+                <h1>{classData.name}</h1>
+                <h4>Course Number: {classData.number}</h4>
+              </div>
+            )}
+          </Col>
+        </Row>
+
+        <Row className="chapters-container">
+          <Col md={12} lg={10} className="mx-auto">
+            {classData && classData.chapters && classData.chapters.length > 0 ? (
+              <Accordion defaultActiveKey="0" className="chapters-accordion">
+                {classData.chapters.map((chapter, index) => (
+                  <Accordion.Item eventKey={index.toString()} key={chapter._id} className="chapter-item">
+                    <Accordion.Header className="chapter-header">
+                      <div className="d-flex w-100 justify-content-between align-items-center">
+                        <span className="chapter-title">{chapter.chapterName}</span>
+                        {chapter.isCompleted && (
+                          <span className="completed-badge">Completed</span>
+                        )}
+                      </div>
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      <Card className="chapter-content">
+                        <Card.Body>
+                          <h3>Summary</h3>
+                          <div className="chapter-summary">
+                            {chapter.summary}
+                          </div>
+                          
+                          {chapter.attempts > 0 && (
+                            <div className="quiz-status">
+                              <p>Previous Score: {chapter.quizScore}/10</p>
+                              <p>Total Attempts: {chapter.attempts}</p>
+                            </div>
+                          )}
+                          
+                          <Button 
+                            variant="primary" 
+                            className="quiz-button"
+                            onClick={() => handleQuizClick(chapter._id)}
+                          >
+                            {chapter.attempts > 0 ? "Retake Quiz" : "Take Quiz"}
+                          </Button>
+                        </Card.Body>
+                      </Card>
+                    </Accordion.Body>
+                  </Accordion.Item>
+                ))}
+              </Accordion>
+            ) : (
+              <div className="no-content">
+                <p>No chapters found for this course.</p>
+                <Button variant="primary" onClick={handleBackClick}>
+                  Return to Dashboard
+                </Button>
+              </div>
+            )}
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  );
 };
 
 export default CoursePage;
