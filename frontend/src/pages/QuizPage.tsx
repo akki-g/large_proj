@@ -289,7 +289,7 @@ const QuizPage: React.FC = () => {
                             { key: 'option2', value: question.option2 },
                             { key: 'option3', value: question.option3 },
                             { key: 'option4', value: question.option4 }
-                          ].map((option, oIndex) => (
+                          ].map((option) => (
                             <Form.Check
                               key={`${question._id}_${option.key}`}
                               type="radio"
