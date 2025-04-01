@@ -1,0 +1,150 @@
+/* UserSettings.css */
+
+/* Background gradient for the entire container */
+.user-settings-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #0f2d13, #1a4314);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  
+  /* Card for the user settings content */
+  .user-settings-card {
+    background-color: #f5e6d9;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 450px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
+  /* Heading style with a font similar to 'DynaPuff' */
+  .user-settings-container h1 {
+    font-family: 'DynaPuff', cursive;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2d6169;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Action buttons container */
+  .user-settings-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+  
+  /* Style for each button with consistent padding, rounded corners, and size */
+  button {
+    padding: 12px 20px;
+    font-size: 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 80%;
+    max-width: 280px;
+    height: auto;
+    margin: 0 auto;
+    border: none;
+    transition: background-color 0.3s ease;
+    text-align: center;
+  }
+  
+  /* Delete Account Button */
+  .delete-account-btn {
+    background-color: #cc4514;
+    color: white;
+  }
+  
+  .delete-account-btn:hover {
+    background-color: #a8401a;
+  }
+  
+  /* Reset Password Button */
+  .reset-password-btn {
+    background-color: #16a085;
+    color: white;
+  }
+  
+  .reset-password-btn:hover {
+    background-color: #1abc9c;
+  }
+  
+  /* Back to Dashboard Button */
+  .back-to-dashboard-btn {
+    background-color: #1c1c57;
+    color: white;
+  }
+  
+  .back-to-dashboard-btn:hover {
+    background-color: #151546;
+  }
+  
+  /* Error and success message styling */
+  .error-message {
+    color: red;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .success-message {
+    color: green;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  /* Optional: If there are form inputs, style them like this */
+  .syInput {
+    padding: 0.8rem;
+    font-size: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 300px;
+    margin: 0 auto;
+    background-color: #f0f0f0;
+    color: black;
+  }
+  
+  /* Optional: Rocket animation for button hover effect (if desired) */
+  .syButton {
+    background-color: #1c1c57;
+    color: white;
+    padding: 1rem;
+    font-size: 0.75rem;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    width: 80%;
+    max-width: 200px;
+    height: auto;
+    line-height: normal;
+    display: inline-block;
+    margin: 0 auto;
+  }
+  
+  .syButton:hover {
+    background-color: #151546;
+  }
+  
+  /* Rocket image animation */
+  .syButton:hover .rocket-image {
+    transform: rotate(90deg) translateX(10px);
+    opacity: 1;
+  }
+  
+  .rocket-image {
+    position: absolute;
+    top: 50%;
+    left: -30px;
+    transform: rotate(0deg);
+    opacity: 0;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }

@@ -11,6 +11,7 @@ import ChatPage from './pages/ChatPage';  // Import the ChatPage component
 import SyUploadPage from './pages/SyUploadPage';
 import CoursePage from './pages/CoursePage';
 import QuizPage from './pages/QuizPage';
+import UserSettings from './pages/UserSettings';
 
 
 const App: React.FC = () => {
@@ -33,6 +34,8 @@ const App: React.FC = () => {
         <Route path="/upload" element={<SyUploadPage />} />
         <Route path="/course/:classID" element={<CoursePage />} />
         <Route path="/course/:classID/:chapterID" element={<QuizPage />} />
+        <Route path="/settings" element={<UserSettings />} />
+
       </Routes>
     </Router>
   );

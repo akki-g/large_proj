@@ -35,8 +35,7 @@ const NavBar: React.FC = () => {
   };
 
   const handleSettingsClick = () => {
-    // TODO: Implement settings functionality
-    alert('Settings clicked');
+    navigate('/settings'); // Redirect to the settings page
   };
 
   return (
@@ -62,7 +61,7 @@ const NavBar: React.FC = () => {
             className="nav-button icon-button"
             aria-label="User settings"
           >
-            <img src={userSettingsIcon} alt="" className="icon" />
+            <img src={userSettingsIcon} alt="Settings Icon" className="icon" />
             <span className="button-text">Settings</span>
           </button>
           
@@ -81,7 +80,7 @@ const NavBar: React.FC = () => {
             className="nav-button logout-button"
             aria-label="Log out"
           >
-            <img src={logoutIcon} alt="" className="logout-icon" />
+            <img src={logoutIcon} alt="Logout Icon" className="logout-icon" />
             <span className="visually-hidden">Logout</span>
           </button>
         </div>

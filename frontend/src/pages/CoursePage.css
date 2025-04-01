@@ -5,6 +5,7 @@
   flex-direction: column;
   min-height: 100vh;
   background: radial-gradient(circle, rgb(26, 27, 26), rgb(6, 54, 21));
+  padding-top: 400px;
 }
 
 .course-page-container {
