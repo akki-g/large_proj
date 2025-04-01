@@ -69,14 +69,17 @@ html, body {
   background-color: #cc4514;
   color: white;
   border: none;
-  padding: 20px 30px;
+  padding: 10px 40px; /* Reduced padding for smaller button */
   font-size: 16px;
   border-radius: 10px; /* Rounded button */
   cursor: pointer;
-  height: 50px; /* Match button height to the text */
+  height: 50px; /* Fixed height */
   line-height: 20px;
-  display: flex;
-  align-items: center; /* Align button text vertically */
+  display: inline-flex; /* Changed to inline-flex for content alignment */
+  justify-content: center; /* Horizontally center the text */
+  align-items: center; /* Vertically center the text */
+  max-width: 250px; /* Set a maximum width for the button */
+  width: auto; /* Let the width adjust based on content */
 }
 
 .main-page__add-syllabi-btn:hover {
