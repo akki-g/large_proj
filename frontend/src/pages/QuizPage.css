@@ -1,37 +1,59 @@
-/* QuizPage.css - Enhanced styling */
+/* QuizPage.css - Complete rewrite */
 
-.quiz-page-wrapper {
-  display: flex;
-  flex-direction: column;
+/* Reset and ensure scrolling works */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow-y: auto !important;
+}
+
+/* Root container */
+.quiz-page-root {
+  position: relative;
   min-height: 100vh;
+  width: 100%;
+}
+
+/* Main wrapper for the quiz page */
+.quiz-page-wrapper {
+  padding-top: 70px; /* Space for navbar */
+  min-height: calc(100vh - 70px);
   background: radial-gradient(circle, rgb(26, 27, 26), rgb(6, 54, 21));
+  position: relative;
+  overflow-y: auto;
+  width: 100%;
 }
 
+/* Main content container */
 .quiz-page-container {
-  margin-top: 70px; /* Space for navbar */
   padding: 20px;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
+  width: 100%;
+  margin-bottom: 40px;
 }
 
+/* Quiz header styling */
 .quiz-header {
-  background-color: rgba(245, 230, 217, 0.9); /* Beige from design, with transparency */
+  background-color: rgba(245, 230, 217, 0.9);
   padding: 20px;
   border-radius: 12px;
   margin-bottom: 20px;
+  margin-top: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .quiz-header h1 {
-  color: #2d6169; /* Teal from design */
+  color: #2d6169;
   font-size: 1.8rem;
   margin-top: 10px;
 }
 
 .back-button {
   margin-bottom: 15px;
-  color: #2d6169; /* Teal from design */
+  color: #2d6169;
   border-color: #2d6169;
   transition: all 0.3s ease;
 }
@@ -43,7 +65,7 @@
 
 /* Quiz form styling */
 .quiz-form-card, .quiz-result-card {
-  background-color: #f9e0c6; /* Warm beige from design */
+  background-color: #f9e0c6;
   border: none;
   border-radius: 12px;
   margin-bottom: 30px;
@@ -51,7 +73,7 @@
 }
 
 .quiz-instructions {
-  color: #2d6169; /* Teal from design */
+  color: #2d6169;
   font-size: 1.2rem;
   margin-bottom: 25px;
   text-align: center;
@@ -60,7 +82,7 @@
 }
 
 .question-container {
-  background-color: #f5f1e9; /* Light beige background */
+  background-color: #f5f1e9;
   padding: 20px;
   margin-bottom: 20px;
   border-radius: 10px;
@@ -68,14 +90,14 @@
 }
 
 .question-text {
-  color: #1c1c57; /* Navy blue from design */
+  color: #1c1c57;
   font-size: 1.2rem;
   margin-bottom: 15px;
   line-height: 1.5;
 }
 
 .question-number {
-  background-color: #1c1c57; /* Navy blue from design */
+  background-color: #1c1c57;
   color: white;
   padding: 4px 10px;
   border-radius: 50%;
@@ -96,7 +118,7 @@
 }
 
 .quiz-option:hover {
-  background-color: rgba(45, 97, 105, 0.1); /* Light teal background on hover */
+  background-color: rgba(45, 97, 105, 0.1);
 }
 
 .quiz-option input[type="radio"] {
@@ -118,13 +140,13 @@
 
 /* Quiz results styling */
 .quiz-result-card {
-  background-color: #f9e0c6; /* Warm beige from design */
+  background-color: #f9e0c6;
 }
 
 .score-summary {
   text-align: center;
   padding: 20px;
-  background-color: #f5f1e9; /* Light beige background */
+  background-color: #f5f1e9;
   border-radius: 10px;
   margin-bottom: 30px;
 }
@@ -145,7 +167,7 @@
 }
 
 .detailed-results-header {
-  color: #2d6169; /* Teal from design */
+  color: #2d6169;
   margin-bottom: 20px;
   padding-bottom: 10px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
@@ -156,11 +178,11 @@
 }
 
 .question-result.correct {
-  background-color: rgba(67, 160, 71, 0.1); /* Light green background */
+  background-color: rgba(67, 160, 71, 0.1);
 }
 
 .question-result.incorrect {
-  background-color: rgba(229, 57, 53, 0.1); /* Light red background */
+  background-color: rgba(229, 57, 53, 0.1);
 }
 
 .answers-review {
@@ -174,17 +196,17 @@
 }
 
 .text-success {
-  color: #43a047 !important; /* Green for correct answers */
+  color: #43a047 !important;
 }
 
 .text-danger {
-  color: #e53935 !important; /* Red for incorrect answers */
+  color: #e53935 !important;
 }
 
 .loading-message {
   margin-top: 100px;
   text-align: center;
-  color: #f9e0c6; /* Light beige text */
+  color: #f9e0c6;
   background-color: rgba(0, 0, 0, 0.5);
   padding: 30px;
   border-radius: 10px;

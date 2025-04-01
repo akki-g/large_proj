@@ -168,9 +168,10 @@ const QuizPage: React.FC = () => {
   }
 
   return (
-    <div className="quiz-page-wrapper">
+    <div className="quiz-page-root">
       <NavBar />
-      <Container className="quiz-page-container">
+      <div className="quiz-page-wrapper">
+        <Container className="quiz-page-container">
         <Row className="quiz-header">
           <Col>
             <Button 
@@ -328,8 +329,10 @@ const QuizPage: React.FC = () => {
             </Col>
           </Row>
         )}
-      </Container>
+              </Container>
+      </div>
     </div>
+
   );
 };
 

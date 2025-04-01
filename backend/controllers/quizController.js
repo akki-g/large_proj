@@ -98,12 +98,17 @@ exports.generateQuiz = async (req, res) => {
         if (!chapter) {
             return res.status(404).json({ error: 'Chapter not found' });
         }
-        const classData = await Class.findOne({ _id: chapter.classID, userID });
+        
+        const classID = chapter.classID;
+        const chapterName = chapter.chapterName;
+        const summary = chapter.summary;
+        const classData = await Class.findOne({ _id: classID, userID });
         if (!classData) {
             return res.status(404).json({ msg: "Class not found" });
         }
 
         await Quiz.deleteMany({ chapterID });
+        
         const quizQuestions = await generateQuizQuestionsFromAI(
             chapter.chapterName, 
             chapter.summary, 
@@ -129,8 +134,12 @@ exports.generateQuiz = async (req, res) => {
             savedQuestions.push(savedQuestion);
         }
 
-        chapter.quiz = savedQuestions.map(q => q._id);
-        await chapter.save();
+        const questionIds = savedQuestions.map(q => q._id);
+        await Chapter.findOneAndUpdate(
+            { _id: chapterID },
+            { $set: { quiz: questionIds } },
+            { new: true }
+        );
 
         const safeQuestions = savedQuestions.map(q => ({
             _id: q._id,

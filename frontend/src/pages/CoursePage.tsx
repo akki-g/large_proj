@@ -108,9 +108,10 @@ const CoursePage: React.FC = () => {
   }
 
   return (
-    <div className="course-page-wrapper">
+    <div className="course-page-root">
       <NavBar />
-      <Container fluid className="course-page-container">
+      <div className="course-page-wrapper">
+        <Container fluid className="course-page-container">
         <Row className="course-header">
           <Col>
             <Button 
@@ -182,6 +183,7 @@ const CoursePage: React.FC = () => {
           </Col>
         </Row>
       </Container>
+      </div>
     </div>
   );
 };
