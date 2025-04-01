@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import NavBar from '../pages/NavBar'; // ✅ Import NavBar
+import NavBar from '../pages/NavBar'; 
 import styles from './SyUploadPage.module.css'; // Import CSS module
 
 const SyUploadPage: React.FC = () => {
@@ -9,16 +9,19 @@ const SyUploadPage: React.FC = () => {
   const [classNumber, setClassNumber] = useState<string>('');
   const [syllabus, setSyllabus] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const navigate = useNavigate(); // ✅ Add useNavigate for navigation
+  const navigate = useNavigate(); 
 
   const jwtToken = localStorage.getItem('token');
 
+
+  // Handle file change
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setSyllabus(e.target.files[0]);
     }
   };
 
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -27,13 +30,15 @@ const SyUploadPage: React.FC = () => {
       return;
     }
 
+    setLoading(true);
+
+  
+
     const formData = new FormData();
     formData.append('name', className);
     formData.append('number', classNumber);
     formData.append('syllabus', syllabus);
     formData.append('jwtToken', jwtToken);
-
-    setLoading(true);
 
     try {
       const response = await axios.post(
@@ -56,6 +61,7 @@ const SyUploadPage: React.FC = () => {
     }
   };
 
+  // Navigate back to main page
   const handleBackToMain = () => {
     navigate('/main'); // Navigate to MainPage
   };
@@ -93,13 +99,17 @@ const SyUploadPage: React.FC = () => {
               required
             />
 
-            {/* Submit Button with Rocket Image */}
+            {/* Submit Button */}
             <button type="submit" className={styles.syButton} disabled={loading}>
               {loading ? 'Creating...' : 'Create Class'}
-
-
             </button>
-            <button onClick={handleBackToMain} className={styles.syBackToMainButton}>
+
+            {/* Back to Main Button */}
+            <button
+              type="button"
+              onClick={handleBackToMain}
+              className={styles.syBackToMainButton}
+            >
               ← Back to Main
             </button>
           </form>

@@ -1,101 +1,79 @@
-/* User Settings Container */
-.user-settings-container {
+
+  .user-settings-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #0f2d13, #1a4314);
     min-height: 100vh;
     padding: 20px;
-}
-
-/* Card for the user settings content */
-.user-settings-card {
+    background-color: none;
+  }
+  
+  /* Card styling for user settings */
+  .user-settings-card {
     background-color: #f5e6d9;
-    padding: 2rem;
+    padding: 5rem;
     border-radius: 12px;
     width: 800px; /* Make the card wider */
-    max-width: 90%; /* Ensure it doesn’t stretch beyond the screen */
+    max-width: 90%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: center;
-    overflow: hidden;
-    background-color: none;
-    height: auto; /* Make the height flexible */
-}
-
-/* Heading style with a font similar to 'DynaPuff' */
-.user-settings-container h1 {
+    height: auto; /* Flexible height */
+  }
+  
+  /* Heading style with a custom font */
+  .user-settings-card h1 {
     font-family: 'DynaPuff', cursive;
     font-size: 2rem;
     font-weight: bold;
     color: #2d6169;
     margin-bottom: 1.5rem;
-}
-
-/* Action buttons container - stacked vertically */
-.user-settings-actions {
+  }
+  
+  /* Stack buttons vertically with spacing */
+  .user-settings-actions {
     display: flex;
-    flex-direction: column; /* Stack the buttons vertically */
-    gap: 1.5rem; /* Increased gap between buttons */
+    flex-direction: column;
+    gap: 1.5rem;
     justify-content: center;
-    margin-top: 2rem; /* Provide some space above the buttons */
-}
-
-/* Style for each button with consistent padding, rounded corners, and size */
-button {
-    padding: 12px 20px;
-    font-size: 1rem;
-    border-radius: 10px;
-    cursor: pointer;
+    margin-top: 2rem;
+  }
+  
+  /* Bootstrap button overrides for width */
+  button {
     width: 80%;
     max-width: 280px;
-    height: auto;
     margin: 0 auto;
-    border: none;
-    transition: background-color 0.3s ease;
-    text-align: center;
-}
-
-/* Delete Account Button */
-.delete-account-btn {
-    background-color: #cc4514;
-    color: white;
-}
-
-.delete-account-btn:hover {
-    background-color: #a8401a;
-}
-
-/* Reset Password Button */
-.reset-password-btn {
-    background-color: #16a085;
-    color: white;
-}
-
-.reset-password-btn:hover {
-    background-color: #1abc9c;
-}
-
-/* Back to Dashboard Button */
-.back-to-dashboard-btn {
-    background-color: #1c1c57;
-    color: white;
-}
-
-.back-to-dashboard-btn:hover {
-    background-color: #151546;
-}
-
-/* Error and success message styling */
-.error-message {
-    color: rgb(192, 192, 192);
+  }
+  
+  /* Error message styling */
+  .error-message {
+    color: red;
     font-size: 1rem;
     text-align: center;
     margin-bottom: 1rem;
-}
-
-.success-message {
+  }
+  
+  /* Success message styling */
+  .success-message {
     color: green;
     font-size: 1rem;
     text-align: center;
     margin-bottom: 1rem;
-}
+  }
+  .btn-success{
+    background-color: #182d65;
+  }
+  .btn-success:hover {
+    background-color: #0d1a3f;
+  }
+  .btn-danger{
+    background-color: #820505;
+  }
+  .btn-primary {
+    background-color: #cd4514;
+    border: none;
+  }
+  
+  .btn-primary:hover {
+    background-color: #84381a;
+  }

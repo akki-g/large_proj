@@ -1,8 +1,10 @@
+// UserSettings.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import NavBar from './NavBar'; // Import the NavBar component
-import './UserSettings.css'; // Optional: for styling
+import './UserSettings.css'; // Import styles
+import 'bootstrap/dist/css/bootstrap.min.css'; // Bootstrap for buttons
 
 const UserSettings: React.FC = () => {
   const navigate = useNavigate();
@@ -11,7 +13,9 @@ const UserSettings: React.FC = () => {
 
   // Handle account deletion
   const handleDeleteAccount = async () => {
-    const confirmation = window.confirm('Are you sure you want to delete your account? This action cannot be undone.');
+    const confirmation = window.confirm(
+      'Are you sure you want to delete your account? This action cannot be undone.'
+    );
     if (confirmation) {
       try {
         const jwtToken = localStorage.getItem('token');
@@ -19,8 +23,8 @@ const UserSettings: React.FC = () => {
           console.error('No JWT token found. Please log in.');
           return;
         }
-        
-        // API call to delete account (replace with your actual endpoint)
+
+        // API call to delete account
         await axios.delete('https://api.scuba2havefun.xyz/api/user/delete', {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
@@ -41,8 +45,10 @@ const UserSettings: React.FC = () => {
     const email = prompt('Please enter your email to reset your password:');
     if (email) {
       try {
-        // API call to reset password (replace with your actual endpoint)
-        await axios.post('https://api.scuba2havefun.xyz/api/user/reset-password', { email });
+        // API call to reset password
+        await axios.post('https://api.scuba2havefun.xyz/api/user/reset-password', {
+          email,
+        });
 
         setMessage('Password reset email sent. Please check your inbox.');
       } catch (error) {
@@ -58,26 +64,27 @@ const UserSettings: React.FC = () => {
 
   return (
     <div className="user-settings-container">
-      <NavBar /> {/* Add NavBar here */}
+      <NavBar /> {/* Add NavBar */}
       
-      <h1>User Settings</h1>
-      
-      {error && <div className="error-message">{error}</div>}
-      {message && <div className="success-message">{message}</div>}
+      <div className="user-settings-card">
+        <h1>Settings</h1>
 
-      <div className="user-settings-actions">
-        <button className="delete-account-btn" onClick={handleDeleteAccount}>
-          Delete Account
-        </button>
-        
-        <button className="reset-password-btn" onClick={handleResetPassword}>
-          Reset Password
-        </button>
-        
-        {/* Back to Dashboard button */}
-        <button className="back-to-dashboard-btn" onClick={handleBackToDashboard}>
-          Back to Dashboard
-        </button>
+        {error && <div className="error-message">{error}</div>}
+        {message && <div className="success-message">{message}</div>}
+
+        <div className="user-settings-actions">
+          <button className="btn btn-danger" onClick={handleDeleteAccount}>
+            Delete Account
+          </button>
+
+          <button className="btn btn-success" onClick={handleResetPassword}>
+            Reset Password
+          </button>
+
+          <button className="btn btn-primary" onClick={handleBackToDashboard}>
+            Back to Dashboard
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -3,7 +3,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #0f2d13, #1a4314);
+  background:none;
+  padding-top: 100px;
 }
 
 .syName {
