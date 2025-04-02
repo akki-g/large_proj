@@ -204,13 +204,14 @@ exports.createClass = async (req, res) => {
         
 
 // search and return set of classes, given keyword
-exports.searchClass = async (req, res, next) => {
+exports.searchClasses = async (req, res, next) => {
     try {
-        const { classID, jwtToken } = req.body;
+        const { keyword, jwtToken } = req.body;
+
 
         // Validate input
-        if (!classID) {
-            return res.status(400).json({ msg: "Class ID is required." });
+        if (!keyword) {
+            return res.status(400).json({ msg: "Keyword is required." });
         }
 
         // Verify JWT and get user ID
@@ -223,10 +224,14 @@ exports.searchClass = async (req, res, next) => {
         }
 
 
-        const chapters = await Chapter.find({
-            classID: classID,
-            userID: userID
-        }).sort({ _id: 1 }); 
+        const classes = await Class.find({
+            userID: userID,
+            $or: [
+                { name: { $regex: keyword, $options: 'i' } },
+                { syllabus: { $regex: keyword, $options: 'i' } },
+                { number: { $regex: keyword, $options: 'i' } }
+            ]
+        });
 
         res.status(200).json({ 
             message: "Class search complete.",
