@@ -205,24 +205,13 @@ exports.createClass = async (req, res) => {
 
 // search and return set of classes, given keyword
 exports.searchClasses = async (req, res, next) => {
-    try {
+    try{
+        
         const { keyword, jwtToken } = req.body;
 
-
-        // Validate input
-        if (!keyword) {
-            return res.status(400).json({ msg: "Keyword is required." });
-        }
-
-        // Verify JWT and get user ID
-        const refreshedToken = tokenController.refreshToken(jwtToken);
-        const userData = tokenController.getTokenData(refreshedToken);
+        const userData = tokenController.getTokenData(jwtToken);
         const userID = userData.user.id;
-        
-        if (!userID) {
-            return res.status(401).json({ msg: "Invalid authentication token." });
-        }
-
+        const refreshedToken = tokenController.refreshToken(jwtToken);
 
         const classes = await Class.find({
             userID: userID,
@@ -233,13 +222,37 @@ exports.searchClasses = async (req, res, next) => {
             ]
         });
 
-        res.status(200).json({ 
-            message: "Class search complete.",
-            classes: classes,
-            jwtToken: refreshedToken
-        });
+        const classesWithProgress = await Promise.all(classes.map(async (cls) => {
+            const chapters = await Chapter.find({
+                classID: cls._id.toString(),
+                userID: userID
+            });
+            
+            const totalChapters = chapters.length;
+            const completedChapters = chapters.filter(ch => ch.isCompleted).length;
+            const progressPercentage = totalChapters > 0 
+                ? Math.round((completedChapters / totalChapters) * 100) 
+                : 0;
+                
+            // Return the class with progress information
+            return {
+                _id: cls._id,
+                name: cls.name,
+                number: cls.number,
+                syllabus: cls.syllabus,
+                userID: cls.userID,
+                chapters: cls.chapters,
+                progress: {
+                    completedChapters,
+                    totalChapters,
+                    progressPercentage
+                }
+            };
+        }));
+
+        res.status(200).json({classes: classesWithProgress, token: refreshedToken});
     }
-    catch (err) {
+    catch(err){
         res.status(500).json({error: err.message});
     }
 };
