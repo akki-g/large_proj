@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'login.dart';
 import 'chatbot.dart';
 import 'courses.dart';
+
+enum menuOption { logout, profile, settings }
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

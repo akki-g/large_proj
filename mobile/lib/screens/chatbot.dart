@@ -91,10 +91,8 @@ class _ChatPageState extends State<ChatPage> {
 
   List<ClassModel> _classes = [];
   bool _showEducationalContext = false;
-  
-  // Tracks whether the sidebar is collapsed
   bool _isSidebarCollapsed = false;
-
+  
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -352,21 +350,19 @@ class _ChatPageState extends State<ChatPage> {
       _message = prompt;
     });
     await _sendMessage();
+    await _fetchClasses();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Make AppBar the same color so the entire top portion matches the sidebar
       appBar: AppBar(
         backgroundColor: const Color(0xFFF9E0C6),
         elevation: 0,
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFFF9E0C6),
-          ),
-        ), // remove shadow if desired
-        iconTheme: const IconThemeData(color: Colors.black), // icon color
+          decoration: const BoxDecoration(color: Color(0xFFF9E0C6)),
+        ),
+        iconTheme: const IconThemeData(color: Colors.black),
         actions: [
           IconButton(
             icon: Icon(_isSidebarCollapsed ? Icons.menu : Icons.menu_open),
@@ -378,45 +374,70 @@ class _ChatPageState extends State<ChatPage> {
           ),
         ],
       ),
-      body: Row(
+      body: Stack(
         children: [
-          // Sidebar appears only if not collapsed
-          if (!_isSidebarCollapsed)
-            Container(
-              width: 250,
-              color: const Color(0xFFF9E0C6),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                child: Column(
-                  children: [
-                    // + New Chat button (full width, smaller height)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _createNewChat,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF246169),
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size(0, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+          Column(
+            children: [
+              if (_error.isNotEmpty)
+                Container(
+                  color: Colors.red[100],
+                  padding: const EdgeInsets.all(8),
+                  margin: const EdgeInsets.all(8),
+                  child: Text(
+                    _error,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              Expanded(
+                child: _currentChat == null
+                    ? _buildWelcomeMessage()
+                    : _buildMessagesView(),
+              ),
+              _buildMessageInput(),
+            ],
+          ),
+
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            top: 0,
+            bottom: 0,
+            left: _isSidebarCollapsed ? -300 : 0,
+            width: 300,
+            child: Material(
+              elevation: 8,
+              child: Container(
+                color: const Color(0xFFF9E0C6),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _createNewChat,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF246169),
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(0, 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
+                          child: const Text('+ New Chat'),
                         ),
-                        child: const Text('+ New Chat'),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Row with "Chats" and "My Classes"
-                    SizedBox(
-                      width: double.infinity,
-                      child: Row(
+                      const SizedBox(height: 8),
+                      Row(
                         children: [
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () => setState(() => _showEducationalContext = false),
                               style: ElevatedButton.styleFrom(
                                 minimumSize: const Size(0, 40),
-                                backgroundColor: !_showEducationalContext ? const Color(0xFF246169) : Colors.grey,
+                                backgroundColor: !_showEducationalContext
+                                    ? const Color(0xFF246169)
+                                    : Colors.grey,
                                 foregroundColor: Colors.white,
                                 shape: const RoundedRectangleBorder(
                                   borderRadius: BorderRadius.only(
@@ -425,10 +446,7 @@ class _ChatPageState extends State<ChatPage> {
                                   ),
                                 ),
                               ),
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: const Text('Chats'),
-                              ),
+                              child: const Text('Chats'),
                             ),
                           ),
                           Expanded(
@@ -436,7 +454,9 @@ class _ChatPageState extends State<ChatPage> {
                               onPressed: () => setState(() => _showEducationalContext = true),
                               style: ElevatedButton.styleFrom(
                                 minimumSize: const Size(0, 40),
-                                backgroundColor: _showEducationalContext ? const Color(0xFF246169) : Colors.grey,
+                                backgroundColor: _showEducationalContext
+                                    ? const Color(0xFF246169)
+                                    : Colors.grey,
                                 foregroundColor: Colors.white,
                                 shape: const RoundedRectangleBorder(
                                   borderRadius: BorderRadius.only(
@@ -445,45 +465,21 @@ class _ChatPageState extends State<ChatPage> {
                                   ),
                                 ),
                               ),
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: const Text('My Classes'),
-                              ),
+                              child: const Text('My Classes'),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Either show chat list or class list
-                    Expanded(
-                      child: !_showEducationalContext ? _buildChatList() : _buildClassList(),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: !_showEducationalContext
+                            ? _buildChatList()
+                            : _buildClassList(),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          // Show divider only if sidebar is visible
-          if (!_isSidebarCollapsed) const VerticalDivider(width: 1),
-          // Main chat area
-          Expanded(
-            child: Column(
-              children: [
-                if (_error.isNotEmpty)
-                  Container(
-                    color: Colors.red[100],
-                    padding: const EdgeInsets.all(8),
-                    margin: const EdgeInsets.all(8),
-                    child: Text(
-                      _error,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
-                Expanded(
-                  child: _currentChat == null ? _buildWelcomeMessage() : _buildMessagesView(),
-                ),
-                _buildMessageInput(),
-              ],
             ),
           ),
         ],
