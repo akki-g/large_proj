@@ -22,7 +22,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? _successText;
 
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
+  bool _hasMinLength = false;
   bool _hasUpper = false;
   bool _hasLower = false;
   bool _hasDigit = false;
@@ -40,7 +42,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   bool _isValidPassword(String password) {
-    return _hasUpper && _hasLower && _hasDigit && _hasSpecial;
+    return _hasMinLength && _hasUpper && _hasLower && _hasDigit && _hasSpecial;
   }
 
   InputDecoration _roundedInputDecoration(String label) {
@@ -139,7 +141,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         try {
           if (response.body.isNotEmpty) {
             final error = jsonDecode(response.body);
-            message = error['message'] ?? message;
+            
+            if (error['message'] != null && error['message'].toString().toLowerCase().contains('email')) {
+              message = 'An account with that email already exists.';
+            }
+
+            else if (error['message'].toString().toLowerCase().contains('phone')) {
+              message = 'An account with that phone number already exists.';
+            }
+
+            else {
+              message = error['message'] ?? message;
+            }
           }
         }
 
@@ -223,6 +236,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     obscureText: _obscurePassword,
                     onChanged: (value) {
                       setState(() {
+                        _hasMinLength = value.length >= 8;
                         _hasUpper = RegExp(r'[A-Z]').hasMatch(value);
                         _hasLower = RegExp(r'[a-z]').hasMatch(value);
                         _hasDigit = RegExp(r'\d').hasMatch(value);
@@ -246,16 +260,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   SizedBox(height: 10),
                   TextField(
                     controller: confirmPasswordController,
-                    obscureText: _obscurePassword,
+                    obscureText: _obscureConfirmPassword,
                     decoration: _roundedInputDecoration("Confirm Password").copyWith(
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                          _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
                           color: Colors.grey,
                         ),
                         onPressed: () {
                           setState(() {
-                            _obscurePassword = !_obscurePassword;
+                            _obscureConfirmPassword = !_obscureConfirmPassword;
                           });
                         },
                       ),
@@ -275,6 +289,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            _buildPasswordRule(_hasMinLength, "At least 8 characters"),
                             _buildPasswordRule(_hasUpper, "At least one uppercase letter"),
                             _buildPasswordRule(_hasLower, "At least one lowercase letter"),
                             _buildPasswordRule(_hasDigit, "At least one number"),
