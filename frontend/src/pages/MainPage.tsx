@@ -5,6 +5,7 @@ import NavBar from '../pages/NavBar'; // Import NavBar component
 import './MainPage.css'; // Import CSS styles
 
 const rocket = "/rocket.png"; // Path to rocket image
+const trash = "/trash.png"; // Path to trash icon - you'll need to add this to your public folder
 
 // Updated ClassData interface to include progress data
 interface ClassData {
@@ -23,52 +24,55 @@ const MainPage: React.FC = () => {
   const navigate = useNavigate();
   const [classes, setClasses] = useState<ClassData[]>([]);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [deletingClassId, setDeletingClassId] = useState<string | null>(null);
+
+  // Function to fetch classes
+  const fetchClasses = async () => {
+    const jwtToken = localStorage.getItem('token');
+    if (!jwtToken) {
+      console.error('No JWT token found. Please log in.');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      if (searchKeyword.trim() === '') {
+        // Fetch all classes if no search keyword is provided
+        const response = await axios.get(
+          `https://api.scuba2havefun.xyz/api/classes/allClasses?token=${jwtToken}`
+        );
+        if (response.data.classes) {
+          setClasses(response.data.classes);
+        } else {
+          console.error('No classes found:', response.data);
+        }
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+        }
+      } else {
+        // Use the search endpoint when a keyword is provided
+        const response = await axios.post(
+          `https://api.scuba2havefun.xyz/api/classes/search`,
+          {
+            keyword: searchKeyword,
+            jwtToken: jwtToken,
+          }
+        );
+        if (response.data.classes) {
+          setClasses(response.data.classes);
+        } else {
+          console.error('No classes found:', response.data);
+        }
+        if (response.data.jwtToken) {
+          localStorage.setItem('token', response.data.jwtToken);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchClasses = async () => {
-      const jwtToken = localStorage.getItem('token');
-      if (!jwtToken) {
-        console.error('No JWT token found. Please log in.');
-        return;
-      }
-
-      try {
-        if (searchKeyword.trim() === '') {
-          // Fetch all classes if no search keyword is provided
-          const response = await axios.get(
-            `https://api.scuba2havefun.xyz/api/classes/allClasses?token=${jwtToken}`
-          );
-          if (response.data.classes) {
-            setClasses(response.data.classes);
-          } else {
-            console.error('No classes found:', response.data);
-          }
-          if (response.data.token) {
-            localStorage.setItem('token', response.data.token);
-          }
-        } else {
-          // Use the search endpoint when a keyword is provided
-          const response = await axios.post(
-            `https://api.scuba2havefun.xyz/api/classes/search`,
-            {
-              keyword: searchKeyword,
-              jwtToken: jwtToken,
-            }
-          );
-          if (response.data.classes) {
-            setClasses(response.data.classes);
-          } else {
-            console.error('No classes found:', response.data);
-          }
-          if (response.data.jwtToken) {
-            localStorage.setItem('token', response.data.jwtToken);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching classes:', error);
-      }
-    };
-
     // Debounce the search by 300ms to reduce rapid calls to the API
     const delayDebounceFn = setTimeout(() => {
       fetchClasses();
@@ -83,6 +87,48 @@ const MainPage: React.FC = () => {
 
   const handleSyllabusClick = () => {
     navigate('/upload');
+  };
+
+  // Handle delete click
+  const handleDeleteClick = async (e: React.MouseEvent, classID: string) => {
+    e.stopPropagation(); // Prevent navigating to the class page
+    
+    // Ask for confirmation before deleting
+    if (window.confirm('Are you sure you want to delete this class? This action cannot be undone.')) {
+      setDeletingClassId(classID);
+      
+      try {
+        const jwtToken = localStorage.getItem('token');
+        if (!jwtToken) {
+          console.error('No JWT token found. Please log in.');
+          navigate('/login');
+          return;
+        }
+        
+        // Call API to delete the class
+        const response = await axios.post(
+          'https://api.scuba2havefun.xyz/api/classes/delete',
+          {
+            classID: classID,
+            jwtToken: jwtToken,
+          }
+        );
+        
+        // Update JWT token if provided in the response
+        if (response.data.jwtToken) {
+          localStorage.setItem('token', response.data.jwtToken);
+        }
+        
+        // Refresh the class list
+        fetchClasses();
+        
+      } catch (error) {
+        console.error('Error deleting class:', error);
+        alert('An error occurred while deleting the class. Please try again.');
+      } finally {
+        setDeletingClassId(null);
+      }
+    }
   };
 
   return (
@@ -118,6 +164,7 @@ const MainPage: React.FC = () => {
                   <h2 className="main-page__class">{classItem.name}</h2>
                   <p>Class Number: {classItem.number}</p>
                 </div>
+                
                 {/* Progress Bar */}
                 <div className="main-page__progress-container">
                   <div className="progress" style={{ width: '100%', backgroundColor: 'black' }}>
@@ -144,11 +191,25 @@ const MainPage: React.FC = () => {
                   <span className="main-page__progress-text">
                     {classItem.progress.completedChapters} / {classItem.progress.totalChapters}
                   </span>
+                  
+                  {/* Delete Button */}
+                  <button 
+                    className="main-page__delete-btn"
+                    onClick={(e) => handleDeleteClick(e, classItem._id)}
+                    aria-label="Delete class"
+                    disabled={deletingClassId === classItem._id}
+                  >
+                    <img 
+                      src={trash} 
+                      alt="Delete" 
+                      className="main-page__delete-icon" 
+                    />
+                  </button>
                 </div>
               </div>
             ))
           ) : (
-            <p>No classes found. Check the console for details.</p>
+            <p className="main-page__no-classes">No classes found. Add a syllabus to get started!</p>
           )}
         </div>
       </div>

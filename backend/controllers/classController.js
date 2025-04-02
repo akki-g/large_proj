@@ -8,7 +8,7 @@ const tokenController = require('./tokenController');
 // Create a new class/syllabus
 
 // POST /api/classes
-
+//helper function to extract keywords from syllabus
 async function generateChapters(syllabusText) {
     try {
         const OPENAI_API_KEY = process.env.OPENAI_API_KEY;

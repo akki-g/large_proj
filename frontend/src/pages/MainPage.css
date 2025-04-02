@@ -227,6 +227,52 @@ html, body {
   text-align: right; /* Ensure the text aligns with the progress bar */
 }
 
+.main-page__delete-btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0 0 0 10px; /* Add some margin on the left only */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px; /* Fixed width to match icon */
+  height: 36px; /* Fixed height to match icon */
+  min-width: 60px; /* Prevent shrinking */
+  border-radius: 50%; /* Makes the button circular */
+  transition: background-color 0.2s ease;
+}
+
+/* Add hover effect */
+.main-page__delete-btn:hover {
+  background-color: rgba(204, 69, 20, 0.1); /* Light red background on hover */
+}
+
+/* Styling for the trash icon inside the delete button */
+.main-page__delete-icon {
+  width: 30px; /* Slightly smaller than the button */
+  height: 30px; /* Slightly smaller than the button */
+  object-fit: contain;
+}
+
+.main-page__delete-btn:hover .main-page__delete-icon {
+  transform: scale(1.2); /* Grow by 20% on hover */
+}
+
+/* Add a disabled state for the delete button */
+.main-page__delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Style for the "no classes found" message */
+.main-page__no-classes {
+  color: #f5e6d9;
+  text-align: center;
+  font-size: 18px;
+  margin-top: 20px;
+}
+
 .rocket-icon {
   position: absolute;
   top: -12px; /* Adjust the vertical position */
