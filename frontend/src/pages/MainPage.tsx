@@ -22,36 +22,60 @@ interface ClassData {
 const MainPage: React.FC = () => {
   const navigate = useNavigate();
   const [classes, setClasses] = useState<ClassData[]>([]);
+  const [searchKeyword, setSearchKeyword] = useState('');
 
   useEffect(() => {
     const fetchClasses = async () => {
+      const jwtToken = localStorage.getItem('token');
+      if (!jwtToken) {
+        console.error('No JWT token found. Please log in.');
+        return;
+      }
+
       try {
-        const jwtToken = localStorage.getItem('token');
-        if (!jwtToken) {
-          console.error('No JWT token found. Please log in.');
-          return;
-        }
-
-        const response = await axios.get(
-          `https://api.scuba2havefun.xyz/api/classes/allClasses?token=${jwtToken}`
-        );
-
-        if (response.data.classes) {
-          setClasses(response.data.classes); // Now includes progress data
+        if (searchKeyword.trim() === '') {
+          // Fetch all classes if no search keyword is provided
+          const response = await axios.get(
+            `https://api.scuba2havefun.xyz/api/classes/allClasses?token=${jwtToken}`
+          );
+          if (response.data.classes) {
+            setClasses(response.data.classes);
+          } else {
+            console.error('No classes found:', response.data);
+          }
+          if (response.data.token) {
+            localStorage.setItem('token', response.data.token);
+          }
         } else {
-          console.error('No classes found:', response.data);
-        }
-
-        if (response.data.token) {
-          localStorage.setItem('token', response.data.token);
+          // Use the search endpoint when a keyword is provided
+          const response = await axios.post(
+            `https://api.scuba2havefun.xyz/api/classes/search`,
+            {
+              keyword: searchKeyword,
+              jwtToken: jwtToken,
+            }
+          );
+          if (response.data.classes) {
+            setClasses(response.data.classes);
+          } else {
+            console.error('No classes found:', response.data);
+          }
+          if (response.data.jwtToken) {
+            localStorage.setItem('token', response.data.jwtToken);
+          }
         }
       } catch (error) {
         console.error('Error fetching classes:', error);
       }
     };
 
-    fetchClasses();
-  }, []);
+    // Debounce the search by 300ms to reduce rapid calls to the API
+    const delayDebounceFn = setTimeout(() => {
+      fetchClasses();
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchKeyword]);
 
   const handleClassClick = (classID: string) => {
     navigate(`/course/${classID}`);
@@ -65,10 +89,8 @@ const MainPage: React.FC = () => {
     <div>
       <NavBar />
       <div className="main-page__container">
-        {/* Header and Syllabus Button Container */}
         <div className="main-page__header-container">
           <h1 className="main-page__header">Welcome to your dashboard!</h1>
-          {/* Syllabus Button */}
           <button
             className="main-page__add-syllabi-btn"
             onClick={handleSyllabusClick}
@@ -76,6 +98,14 @@ const MainPage: React.FC = () => {
             + Add Syllabus
           </button>
         </div>
+        {/* Search Bar */}
+        <input
+          type="text"
+          placeholder="Search classes..."
+          value={searchKeyword}
+          onChange={(e) => setSearchKeyword(e.target.value)}
+          className="main-page__search-input"
+        />
         <div className="main-page__content-container">
           {classes.length > 0 ? (
             classes.map((classItem: ClassData) => (
@@ -90,13 +120,13 @@ const MainPage: React.FC = () => {
                 </div>
                 {/* Progress Bar */}
                 <div className="main-page__progress-container">
-                  <div className="progress"  style={{ width: '100%', backgroundColor: 'black' }}>
+                  <div className="progress" style={{ width: '100%', backgroundColor: 'black' }}>
                     <div
                       className="progress-bar"
                       role="progressbar"
                       style={{
                         width: `${(classItem.progress.completedChapters / classItem.progress.totalChapters) * 100}%`,
-                        backgroundColor: '#b24d16', // Progress bar color
+                        backgroundColor: '#b24d16',
                       }}
                       aria-valuenow={classItem.progress.completedChapters}
                       aria-valuemin={0}

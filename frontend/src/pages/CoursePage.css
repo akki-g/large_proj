@@ -1,205 +1,351 @@
-/* CoursePage.css - Complete rewrite */
+/* CoursePage.css - Redesigned without Bootstrap Accordion */
 
 /* Reset and ensure scrolling works */
 html, body, #root {
-    height: 100%;
-    margin: 0;
-    padding: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow-y: auto !important;
+}
+
+/* Root container */
+.course-page-root {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Main wrapper for the course page */
+.course-page-wrapper {
+  padding-top: 70px; /* Space for navbar */
+  min-height: calc(100vh - 70px);
+  position: relative;
+  overflow-y: auto;
+  width: 100%;
+}
+
+/* Main content container */
+.course-page-container {
+  padding: 20px;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+/* Course header styling */
+.course-header {
+  background-color: rgba(245, 230, 217, 0.9);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  margin-top: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.back-button {
+  margin-bottom: 15px;
+  color: #2d6169;
+  border-color: #2d6169;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #2d6169;
+  color: white;
+}
+
+.class-info {
+  margin-top: 10px;
+}
+
+.class-info h1 {
+  color: #2d6169;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.class-info h4 {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* Custom chapters styling */
+/* Modified chapters container to constrain width */
+.chapters-container {
+  margin-bottom: 30px;
+  width: 100%;
+  padding: 0 20px; /* Add horizontal padding */
+}
+
+.custom-chapters {
+  width: 100%;
+  max-width: 900px; /* Limit maximum width */
+  margin: 0 auto; /* Center the container */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure consistent container width */
+.chapter-item {
+  width: 100%;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Add new wrapper around content for better control */
+.chapter-content-wrapper {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.chapter-content-wrapper.hidden {
+  display: none;
+}
+
+.chapter-content-wrapper.visible {
+  display: block;
+}
+
+/* Chapter header */
+.chapter-header {
+  background-color: #f9e0c6;
+  border-radius: 10px;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Ensure consistent width */
+}
+
+.chapter-header:hover {
+  background-color: #f0d5b0;
+}
+
+.chapter-header.expanded {
+  background-color: #f0d5b0;
+  border-radius: 10px 10px 0 0;
+  /* No width change when expanded */
+}
+
+.chapter-header-content {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  position: relative;
+  min-height: 65px;
+  box-sizing: border-box; /* Ensure padding is included in width/height */
+  width: 100%; /* Full width to prevent resizing */
+}
+
+.chapter-title {
+  flex-grow: 1;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #2d6169;
+  line-height: 1.4;
+  padding-right: 100px; /* Increased space for badge and toggle icon */
+  /* Remove text truncation to allow for multiline titles */
+}
+
+.completed-badge {
+  background-color: #43a047;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  margin-left: 15px;
+  position: absolute; /* Position absolutely to avoid pushing other elements */
+  right: 50px; /* Position badge to the left of the toggle icon */
+  top: 50%;
+  transform: translateY(-50%);
+  flex-shrink: 0; /* Prevent badge from shrinking */
+}
+
+.chapter-toggle-icon {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 24px;
+  font-weight: bold;
+  color: #2d6169;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: transform 0.5s ease; /* Increased from 0.3s */
+}
+
+.expanded .chapter-toggle-icon {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* Chapter content */
+/* Add animation for expansion/collapse */
+.chapter-content {
+  background-color: #f5f1e9;
+  padding: 20px;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-top: none;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  transform-origin: top;
+  animation-duration: 0.5s; /* Increased from 0.3s */
+  animation-fill-mode: forwards;
+}
+
+/* Animation for expanding */
+@keyframes expandContent {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
   }
-  
-  body {
-    overflow-y: auto !important;
+  20% {
+    opacity: 0.3;
+    transform: scaleY(0.2);
   }
-  
-  /* Root container */
-  .course-page-root {
-    position: relative;
-    min-height: 100vh;
-    width: 100%;
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
   }
-  
-  /* Main wrapper for the course page */
-  .course-page-wrapper {
-    padding-top: 70px; /* Space for navbar */
-    min-height: calc(100vh - 70px);
-    background: radial-gradient(circle, rgb(26, 27, 26), rgb(6, 54, 21));
-    position: relative;
-    overflow-y: auto;
-    width: 100%;
+}
+
+/* Animation for collapsing */
+@keyframes collapseContent {
+  0% {
+    opacity: 1;
+    transform: scaleY(1);
   }
-  
-  /* Main content container */
-  .course-page-container {
-    padding: 20px;
-    width: 100%;
-    margin-bottom: 40px;
+  80% {
+    opacity: 0.3;
+    transform: scaleY(0.2);
   }
-  
-  /* Course header styling */
+  100% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+}
+
+/* Apply animations based on state */
+.chapter-content {
+  animation-name: expandContent;
+}
+
+.chapter-header {
+  transition: background-color 0.5s ease, border-radius 0.5s ease; /* Increased from 0.3s */
+}
+
+.chapter-content h3 {
+  color: #2d6169;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+.chapter-summary {
+  margin: 15px 0;
+  line-height: 1.6;
+  color: #333;
+  white-space: pre-line;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  border-left: 3px solid #2d6169;
+  background-color: rgba(45, 97, 105, 0.05);
+  border-radius: 0 5px 5px 0;
+}
+
+.quiz-status {
+  margin: 15px 0;
+  padding: 15px;
+  background-color: rgba(28, 28, 87, 0.1);
+  border-radius: 8px;
+}
+
+.quiz-status p {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.quiz-button {
+  background-color: #1c1c57;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.quiz-button:hover {
+  background-color: #151546;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.no-content {
+  background-color: #f9e0c6;
+  padding: 30px;
+  text-align: center;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner, .error-message {
+  margin-top: 100px;
+  text-align: center;
+  color: #030303;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.error-message {
+  color: #ff6b6b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
   .course-header {
-    background-color: rgba(245, 230, 217, 0.9);
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    margin-top: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  .back-button {
-    margin-bottom: 15px;
-    color: #2d6169;
-    border-color: #2d6169;
-    transition: all 0.3s ease;
-  }
-  
-  .back-button:hover {
-    background-color: #2d6169;
-    color: white;
-  }
-  
-  .class-info {
-    margin-top: 10px;
+    padding: 15px;
   }
   
   .class-info h1 {
-    color: #2d6169;
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
   }
   
   .class-info h4 {
-    color: #666;
-    font-size: 1.1rem;
-  }
-  
-  /* Chapters container */
-  .chapters-container {
-    margin-bottom: 30px;
-  }
-  
-  .chapters-accordion {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .chapter-item {
-    margin-bottom: 15px;
-    border: none;
-    background-color: transparent;
-  }
-  
-  .chapter-header {
-    background-color: #f9e0c6;
-    border-radius: 10px !important;
-    overflow: hidden;
-  }
-  
-  .accordion-button:not(.collapsed) {
-    background-color: #f0d5b0;
-    color: #2d6169;
-    box-shadow: none;
-  }
-  
-  .accordion-button:focus {
-    box-shadow: 0 0 0 0.25rem rgba(45, 97, 105, 0.25);
+    font-size: 1rem;
   }
   
   .chapter-title {
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: #2d6169;
+    font-size: 1rem;
   }
   
-  .completed-badge {
-    background-color: #43a047;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    margin-left: 15px;
+  .chapter-header-content {
+    padding: 15px;
+    min-height: 60px;
   }
   
   .chapter-content {
-    background-color: #f5f1e9;
-    border: none;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 15px;
   }
   
   .chapter-summary {
-    margin: 15px 0;
-    line-height: 1.6;
-    color: #333;
-    white-space: pre-line;
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 10px;
-    border-left: 3px solid #2d6169;
-    background-color: rgba(45, 97, 105, 0.05);
+    max-height: 200px;
+    padding: 8px;
   }
   
-  .quiz-status {
-    margin: 15px 0;
-    padding: 10px;
-    background-color: rgba(28, 28, 87, 0.1);
-    border-radius: 8px;
+  .chapter-toggle-icon {
+    right: 15px;
   }
-  
-  .quiz-button {
-    background-color: #1c1c57;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
-    transition: all 0.3s ease;
-  }
-  
-  .quiz-button:hover {
-    background-color: #151546;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  .no-content {
-    background-color: #f9e0c6;
-    padding: 30px;
-    text-align: center;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .loading-spinner, .error-message {
-    margin-top: 100px;
-    text-align: center;
-    color: #f9e0c6;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 30px;
-    border-radius: 10px;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  .error-message {
-    color: #ff6b6b;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .course-header {
-      padding: 15px;
-    }
-    
-    .class-info h1 {
-      font-size: 1.5rem;
-    }
-    
-    .class-info h4 {
-      font-size: 1rem;
-    }
-    
-    .chapter-title {
-      font-size: 1rem;
-    }
-    
-    .chapter-summary {
-      max-height: 200px;
-    }
-  }
+}

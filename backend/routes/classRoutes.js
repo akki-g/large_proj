@@ -1,7 +1,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { createClass, searchClass, modifyClass, deleteClass, getAllClasses, getClassWithChapters } = require('../controllers/classController');
+const { createClass, searchClasses, modifyClass, deleteClass, getAllClasses, getClassWithChapters } = require('../controllers/classController');
 const upload = require('../fileControl/fileUpload');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json({ limit: '50mb' });
@@ -10,7 +10,7 @@ const multer = require('multer');
 const testUpload = multer({ dest: 'uploads/' });
 
 router.post('/create',  upload.single('syllabus'), createClass);
-router.post('/search', jsonParser, searchClass);
+router.post('/search', jsonParser, searchClasses);
 router.post('/modify', jsonParser, modifyClass);
 router.post('/delete', deleteClass);
 router.get('/allClasses', getAllClasses);
