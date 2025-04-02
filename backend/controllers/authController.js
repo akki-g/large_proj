@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const {v4: uuidv4} = require('uuid');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const tokenController = require('./tokenController');
 
 
 //register
