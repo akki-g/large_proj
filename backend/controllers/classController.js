@@ -17,7 +17,9 @@ async function generateChapters(syllabusText) {
         `
             Based on the following syllabus text, generate a list of 5 to 10 chapter titles for a class study plan:
             ${syllabusText}
-            Please return the chapter titles in JSON format as an array of strings.
+            Please return the chapter titles in RAW JSON format as an array of strings.
+            Return only the JSON array, without any additional text or explanation.
+
         `;
 
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
@@ -128,6 +130,7 @@ async function generateChapterSummaries(chapterNames, className) {
 // create class
 exports.createClass = async (req, res) => {
     try {
+      console.log("createClass API called");
       const { name, number, jwtToken } = req.body;
       console.log("Request body:", req.body);
       const syllabus = req.file;
@@ -206,7 +209,7 @@ exports.createClass = async (req, res) => {
 // search and return set of classes, given keyword
 exports.searchClasses = async (req, res, next) => {
     try{
-        
+        console.log("searchClasses API called");
         const { keyword, jwtToken } = req.body;
 
         const userData = tokenController.getTokenData(jwtToken);
@@ -260,6 +263,7 @@ exports.searchClasses = async (req, res, next) => {
 // pass in the mongodb ID as classID
 exports.modifyClass = async (req, res, next) => {
     try {
+        console.log("modifyClass API called");
         const {name, number, syllabus, classID, jwtToken} = req.body
 
         if (!name || !number || !syllabus || !classID) {
@@ -290,6 +294,7 @@ exports.modifyClass = async (req, res, next) => {
 // pass in the mongodb ID as classID
 exports.deleteClass = async (req, res, newToken) => {
     try {
+        console.log("deleteClass API called");
         const {classID, jwtToken} = req.body;
 
         const refreshedToken = tokenController.refreshToken(jwtToken); // Fixed: Define before using
@@ -318,6 +323,7 @@ exports.deleteClass = async (req, res, newToken) => {
 //get all classes
 exports.getAllClasses = async (req, res) => {
     try{
+        console.log("getAllClasses API called");
         const token = req.query.token;
         const userData = tokenController.getTokenData(token);
         const userID = userData.user.id;
@@ -362,6 +368,7 @@ exports.getAllClasses = async (req, res) => {
 
 exports.getClassWithChapters = async (req, res) => {
     try {
+        console.log("getClassWithChapters API called");
         const { classID, jwtToken } = req.query;
         
         // Verify JWT and get user ID
