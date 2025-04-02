@@ -1,6 +1,7 @@
 // UserSettings.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import NavBar from './NavBar'; // Import the NavBar component
 import './UserSettings.css'; // Import styles
@@ -10,6 +11,7 @@ const UserSettings: React.FC = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
 
   // Handle account deletion
   const handleDeleteAccount = async () => {
@@ -73,7 +75,7 @@ const UserSettings: React.FC = () => {
         {message && <div className="success-message">{message}</div>}
 
         <div className="user-settings-actions">
-          <button className="btn btn-danger" onClick={handleDeleteAccount}>
+          <button className="btn btn-danger" onClick={() => setShowDeleteModal(true)}>
             Delete Account
           </button>
 
@@ -86,6 +88,24 @@ const UserSettings: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Delete Account Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Delete Account</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDeleteAccount}>
+            Delete Account
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

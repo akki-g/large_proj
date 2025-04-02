@@ -267,11 +267,13 @@ const ChatPage: React.FC = () => {
     
     // Set the message and send it automatically
     setMessage(prompt);
-    setTimeout(() => {
+
+    // Not sending it automatically bc it was causing a page reload
+    /*setTimeout(() => {
       // Create a synthetic form submit event
       const event = new Event('submit') as any;
       document.querySelector('.message-form')?.dispatchEvent(event);
-    }, 100);
+    }, 100);*/
   };
   
   return (
