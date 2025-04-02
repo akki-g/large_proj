@@ -111,13 +111,15 @@ body {
 }
 
 .quiz-option {
+  display: flex;
+  flex-flow: row;
   margin-bottom: 12px;
   padding: 10px;
   border-radius: 8px;
   transition: all 0.2s ease;
 }
 
-.quiz-option:hover {
+.quiz-option label:hover {
   background-color: rgba(45, 97, 105, 0.1);
 }
 
@@ -128,8 +130,9 @@ body {
 .quiz-option label {
   width: 100%;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
+  padding-block: 0.5rem;
+  margin-block: -0.5rem;
+  border-radius: 0.5rem;
 }
 
 .quiz-actions {
