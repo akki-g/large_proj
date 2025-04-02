@@ -217,7 +217,6 @@ exports.searchClasses = async (req, res, next) => {
             userID: userID,
             $or: [
                 { name: { $regex: keyword, $options: 'i' } },
-                { syllabus: { $regex: keyword, $options: 'i' } },
                 { number: { $regex: keyword, $options: 'i' } }
             ]
         });
