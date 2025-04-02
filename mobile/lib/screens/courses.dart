@@ -66,8 +66,8 @@ class _CoursesScreenState extends State<CoursesScreen> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Save updated token if provided
-        if (responseData['token'] != null) {
-          await prefs.setString('token', responseData['token']);
+        if (responseData['jwtToken'] != null) {
+          await prefs.setString('jwtToken', responseData['jwtToken']);
         }
 
         if (responseData['classes'] != null) {
@@ -76,8 +76,8 @@ class _CoursesScreenState extends State<CoursesScreen> {
             courses = List<Map<String, dynamic>>.from(
               responseData['classes'].map((course) => {
                 'id': course['_id'] ?? '',
-                'name': course['className'] ?? 'Unnamed Course',
-                'number': course['courseNumber'] ?? 'Unknown Number',
+                'name': course['name'] ?? 'Unnamed Course',
+                'number': course['number'] ?? 'Unknown Number',
                 // You might need to calculate progress from the API data
                 'progress': 0.5, // Default placeholder
               }),
@@ -170,14 +170,14 @@ class _CoursesScreenState extends State<CoursesScreen> {
       });
 
       // Add text fields
-      request.fields['className'] = name;
-      request.fields['courseNumber'] = courseNumber;
-      request.fields['token'] = jwtToken;
+      request.fields['name'] = name;
+      request.fields['number'] = courseNumber;
+      request.fields['jwtToken'] = jwtToken;
 
       // Add PDF file using XFile
       request.files.add(
         await http.MultipartFile.fromPath(
-          'syllabusPdf',
+          'syllabus',
           _selectedXFile!.path,
           filename: _selectedFileName,
         ),
@@ -247,17 +247,30 @@ class _CoursesScreenState extends State<CoursesScreen> {
         return;
       }
 
+      // JSON request body
+      final Map<String, dynamic> requestBody = {
+        'classID': courseId,
+        'jwtToken': jwtToken,
+      };
+
+      // Send POST request
       final response = await http.post(
-        Uri.parse('$apiBaseUrl/classes/delete/$courseId?token=$jwtToken'),
+        Uri.parse('$apiBaseUrl/classes/delete'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken',
         },
+        body: jsonEncode(requestBody),
       );
+
+      // Debug response
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
 
       final responseData = await json.decode(response.body);
 
-          if (response.statusCode == 200) {
+          if (response.statusCode == 200 || response.statusCode == 201) {
         // Save updated token if provided
         if (responseData['token'] != null) {
           await prefs.setString('token', responseData['token']);
