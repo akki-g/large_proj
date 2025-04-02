@@ -251,3 +251,36 @@ exports.resetPassword = async (req, res) => {
         res.status(500).json({error: err.message});
     }
 };
+
+exports.retrieveData = async (req, res) => {
+    try{
+        const { jwtToken } = req.body;
+
+        const userData = tokenController.getTokenData(jwtToken);
+        const userID = userData.user.id;
+
+        if (!userID) {
+            return res.status(400).json({ msg: "Invalid authentication token." });
+        }
+
+        const email = userData.user.email;
+        const userSchema = await User.findOne({ email });
+
+        const refreshedToken = tokenController.refreshToken(jwtToken);
+        const fullName = userSchema.firstName + " " + userSchema.lastName;
+
+        res.status(200).json({
+            firstName: userSchema.firstName,
+            lastName: userSchema.lastName,
+            fullName: fullName,
+            email: email,
+            token: refreshedToken
+        });
+       
+
+
+    }
+    catch (err) {
+        res.status(500).json({error: err.message});
+    }
+};
