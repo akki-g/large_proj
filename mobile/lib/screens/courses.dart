@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'package:file_selector/file_selector.dart';
 
+import 'class.dart';
+
 const String apiBaseUrl = 'https://api.scuba2havefun.xyz/api';
 
 class CoursesScreen extends StatefulWidget {
@@ -448,18 +450,29 @@ class _CoursesScreenState extends State<CoursesScreen> {
 
   // Navigate to course details
   void _navigateToCourse(String courseId) {
-    // Navigate to course details screen
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => CourseDetailScreen(courseId: courseId),
-    //   ),
-    // );
+    // Find the course name and number based on courseId
+    final courseIndex = courses.indexWhere((course) => course['id'] == courseId);
+    if (courseIndex != -1) {
+      final courseName = courses[courseIndex]['name'];
+      final courseNumber = courses[courseIndex]['number'];
 
-    // For now, just show a message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Navigating to course $courseId')),
-    );
+      // Navigate to course details screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CourseDetailScreen(
+            courseId: courseId,
+            courseName: courseName,
+            courseNumber: courseNumber,
+          ),
+        ),
+      );
+    } else {
+      // Course not found in local data
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Course details not found')),
+      );
+    }
   }
 
   @override

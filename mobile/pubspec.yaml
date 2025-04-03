@@ -35,6 +35,10 @@ dependencies:
 
   shared_preferences: ^2.2.2
 
+  file_selector: ^0.9.5 # Used for selecting a PDF
+
+  intl: ^0.18.0 # Used for date and date formatting
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
