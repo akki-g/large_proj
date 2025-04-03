@@ -1,4 +1,8 @@
 const User = require('../models/Users');
+const Class = require('../models/Class');
+const Chapter = require('../models/Chapter');
+const Quiz = require('../models/Quiz');
+const Chat = require('../models/Chat');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const {v4: uuidv4} = require('uuid');
