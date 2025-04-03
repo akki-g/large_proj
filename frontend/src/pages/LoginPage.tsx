@@ -25,14 +25,16 @@ const LoginPage: React.FC = () => {
         email,
         password,
       });
-      setMessage(response.data.msg || "Login successful!");
+      setMessage(response.data.message || response.data.msg || "Login successful!");
       localStorage.setItem('token', response.data.token);
 
       // Navigate to the main page after successful login
       navigate('/main'); // Adjust the route to your main page route
 
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Something went wrong. Please try again.');
+      // Check for error in both msg and error fields from backend response
+      setError(err.response?.data?.msg || err.response?.data?.error || 'Something went wrong. Please try again.');
+      console.log('Login error:', err.response?.data);
     } finally {
       setLoading(false);
     }

@@ -285,3 +285,47 @@ exports.retrieveData = async (req, res) => {
         res.status(500).json({error: err.message});
     }
 };
+
+
+exports.deleteUser = async (req, res) => {
+    try {
+        const { password, jwtToken } = req.body;
+
+        if (!password || !jwtToken) {
+            return res.status(400).json({ msg: "Password is required for account deletion" });
+        }
+
+        const userData = tokenController.getTokenData(jwtToken);
+        
+        if (!userData || !userData.user || !userData.user.id) {
+            return res.status(401).json({ msg: "Invalid authentication token" });
+        }
+        
+        const userID = userData.user.id;
+        const email = userData.user.email;
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ msg: "Incorrect password. For security reasons, account deletion requires your correct password." });
+        }
+
+        const classes = await Class.find({ userID });
+        for (const cls of classes) {
+            await Chapter.deleteMany({ classID: cls._id.toString(), userID });
+            await Quiz.deleteMany({ classID: cls._id.toString() });
+        }
+        await Class.deleteMany({ userID });
+        await Chat.deleteMany({ userID });
+        await User.findOneAndDelete({ userID });
+
+        res.status(200).json({ msg: "User account and all associated data deleted successfully" });
+    } catch (err) {
+        console.error("Error deleting user account:", err);
+        res.status(500).json({ error: err.message });
+    }
+};

@@ -1,7 +1,7 @@
 // UserSettings.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {Modal, Button, Form } from 'react-bootstrap';
+import { Modal, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
 import NavBar from './NavBar'; // Import the NavBar component
 import './UserSettings.css'; // Import styles
@@ -14,33 +14,46 @@ const UserSettings: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [showResetModal, setShowResetModal] = useState<boolean>(false);
   const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   // Handle account deletion
   const handleDeleteAccount = async () => {
-    const confirmation = window.confirm(
-      'Are you sure you want to delete your account? This action cannot be undone.'
-    );
-    if (confirmation) {
-      try {
-        const jwtToken = localStorage.getItem('token');
-        if (!jwtToken) {
-          console.error('No JWT token found. Please log in.');
-          return;
-        }
+    if (!password.trim()) {
+      setError('Please enter your password to confirm account deletion.');
+      return;
+    }
 
-        // API call to delete account
-        await axios.delete('https://api.scuba2havefun.xyz/api/user/delete', {
-          headers: {
-            Authorization: `Bearer ${jwtToken}`,
-          },
-        });
+    try {
+      setIsDeleting(true);
+      setError(null);
 
-        // After successful deletion, clear token and navigate
-        localStorage.removeItem('token');
-        navigate('/login'); // Redirect to login page
-      } catch (error) {
-        setError('Error deleting account. Please try again.');
+      const jwtToken = localStorage.getItem('token');
+      if (!jwtToken) {
+        setError('No authentication token found. Please log in again.');
+        setIsDeleting(false);
+        return;
       }
+
+      // Call the API to delete the account with password verification
+      const response = await axios.post('https://api.scuba2havefun.xyz/api/auth/delete-account', {
+        password,
+        jwtToken
+      });
+
+      // If successful, clear token and navigate to login
+      setShowDeleteModal(false);
+      localStorage.removeItem('token');
+      navigate('/login');
+    } catch (err: any) {
+      console.error('Error deleting account:', err);
+      setError(
+        err.response?.data?.msg || 
+        err.response?.data?.error || 
+        'An error occurred while trying to delete your account. Please try again.'
+      );
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -98,20 +111,39 @@ const UserSettings: React.FC = () => {
         </div>
       </div>
 
-      {/* Delete Account Modal */}
+      {/* Delete Account Modal with Password Confirmation */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Delete Account</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+          <p>Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.</p>
+          <p>Please enter your password to confirm:</p>
+          <Form.Group controlId="password">
+            <Form.Control
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </Form.Group>
+          {error && <div className="error-message mt-2">{error}</div>}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+          <Button variant="secondary" onClick={() => {
+            setShowDeleteModal(false);
+            setPassword('');
+            setError(null);
+          }}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={handleDeleteAccount}>
-            Delete Account
+          <Button 
+            variant="danger" 
+            onClick={handleDeleteAccount}
+            disabled={isDeleting || !password.trim()}
+          >
+            {isDeleting ? 'Deleting...' : 'Delete Account'}
           </Button>
         </Modal.Footer>
       </Modal>
