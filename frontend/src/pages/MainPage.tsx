@@ -25,9 +25,12 @@ const MainPage: React.FC = () => {
   const [classes, setClasses] = useState<ClassData[]>([]);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [deletingClassId, setDeletingClassId] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true); // Add loading state
 
   // Function to fetch classes
   const fetchClasses = async () => {
+    setLoading(true); // Set loading to true when starting to fetch
+    
     const jwtToken = localStorage.getItem('token');
     if (!jwtToken) {
       console.error('No JWT token found. Please log in.');
@@ -37,7 +40,7 @@ const MainPage: React.FC = () => {
 
     try {
       if (searchKeyword.trim() === '') {
-        // Fetch all classes if no search keyword is provided
+
         const response = await axios.get(
           `https://api.scuba2havefun.xyz/api/classes/allClasses?token=${jwtToken}`
         );
@@ -50,7 +53,6 @@ const MainPage: React.FC = () => {
           localStorage.setItem('token', response.data.token);
         }
       } else {
-        // Use the search endpoint when a keyword is provided
         const response = await axios.post(
           `https://api.scuba2havefun.xyz/api/classes/search`,
           {
@@ -69,6 +71,8 @@ const MainPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching classes:', error);
+    } finally {
+      setLoading(false); // Set loading to false when done fetching
     }
   };
 
@@ -89,13 +93,13 @@ const MainPage: React.FC = () => {
     navigate('/upload');
   };
 
-  // Handle delete click
+
   const handleDeleteClick = async (e: React.MouseEvent, classID: string) => {
-    e.stopPropagation(); // Prevent navigating to the class page
-    
-    // Ask for confirmation before deleting
+    e.stopPropagation(); 
+
     if (window.confirm('Are you sure you want to delete this class? This action cannot be undone.')) {
       setDeletingClassId(classID);
+      setLoading(true);
       
       try {
         const jwtToken = localStorage.getItem('token');
@@ -105,7 +109,6 @@ const MainPage: React.FC = () => {
           return;
         }
         
-        // Call API to delete the class
         const response = await axios.post(
           'https://api.scuba2havefun.xyz/api/classes/delete',
           {
@@ -125,94 +128,109 @@ const MainPage: React.FC = () => {
       } catch (error) {
         console.error('Error deleting class:', error);
         alert('An error occurred while deleting the class. Please try again.');
+        setLoading(false); // Ensure loading is set to false if there's an error
       } finally {
         setDeletingClassId(null);
       }
     }
   };
 
+  // Loading screen component
+  const LoadingScreen = () => (
+    <div className="main-page__loading-screen">
+      <div className="main-page__loading-spinner"></div>
+      <p>Loading your classes...</p>
+    </div>
+  );
+
   return (
     <div>
       <NavBar />
-      <div className="main-page__container">
-        <div className="main-page__header-container">
-          <h1 className="main-page__header">Welcome to your dashboard!</h1>
-          <button
-            className="main-page__add-syllabi-btn"
-            onClick={handleSyllabusClick}
-          >
-            + Add Syllabus
-          </button>
-        </div>
-        {/* Search Bar */}
-        <input
-          type="text"
-          placeholder="Search classes..."
-          value={searchKeyword}
-          onChange={(e) => setSearchKeyword(e.target.value)}
-          className="main-page__search-input"
-        />
-        <div className="main-page__content-container">
-          {classes.length > 0 ? (
-            classes.map((classItem: ClassData) => (
-              <div
-                key={classItem._id}
-                className="main-page__course-card"
-                onClick={() => handleClassClick(classItem._id)}
-              >
-                <div className="main-page__course-info">
-                  <h2 className="main-page__class">{classItem.name}</h2>
-                  <p>Class Number: {classItem.number}</p>
-                </div>
-                
-                {/* Progress Bar */}
-                <div className="main-page__progress-container">
-                  <div className="progress" style={{ width: '100%', backgroundColor: 'black' }}>
-                    <div
-                      className="progress-bar"
-                      role="progressbar"
-                      style={{
-                        width: `${(classItem.progress.completedChapters / classItem.progress.totalChapters) * 100}%`,
-                        backgroundColor: '#b24d16',
-                      }}
-                      aria-valuenow={classItem.progress.completedChapters}
-                      aria-valuemin={0}
-                      aria-valuemax={classItem.progress.totalChapters}
-                    ></div>
-                    <img
-                      className="rocket-icon"
-                      src={rocket}
-                      alt="Rocket"
-                      style={{
-                        left: `${(classItem.progress.completedChapters / classItem.progress.totalChapters) * 100}%`,
-                      }}
-                    />
+      {loading ? (
+        // Show loading screen when loading is true
+        <LoadingScreen />
+      ) : (
+        // Show main content when loading is false
+        <div className="main-page__container">
+          <div className="main-page__header-container">
+            <h1 className="main-page__header">Welcome to your dashboard!</h1>
+            <button
+              className="main-page__add-syllabi-btn"
+              onClick={handleSyllabusClick}
+            >
+              + Add Syllabus
+            </button>
+          </div>
+          {/* Search Bar */}
+          <input
+            type="text"
+            placeholder="Search classes..."
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            className="main-page__search-input"
+          />
+          <div className="main-page__content-container">
+            {classes.length > 0 ? (
+              classes.map((classItem: ClassData) => (
+                <div
+                  key={classItem._id}
+                  className="main-page__course-card"
+                  onClick={() => handleClassClick(classItem._id)}
+                >
+                  <div className="main-page__course-info">
+                    <h2 className="main-page__class">{classItem.name}</h2>
+                    <p>Class Number: {classItem.number}</p>
                   </div>
-                  <span className="main-page__progress-text">
-                    {classItem.progress.completedChapters} / {classItem.progress.totalChapters}
-                  </span>
                   
-                  {/* Delete Button */}
-                  <button 
-                    className="main-page__delete-btn"
-                    onClick={(e) => handleDeleteClick(e, classItem._id)}
-                    aria-label="Delete class"
-                    disabled={deletingClassId === classItem._id}
-                  >
-                    <img 
-                      src={trash} 
-                      alt="Delete" 
-                      className="main-page__delete-icon" 
-                    />
-                  </button>
+                  {/* Progress Bar */}
+                  <div className="main-page__progress-container">
+                    <div className="progress" style={{ width: '100%', backgroundColor: 'black' }}>
+                      <div
+                        className="progress-bar"
+                        role="progressbar"
+                        style={{
+                          width: `${(classItem.progress.completedChapters / classItem.progress.totalChapters) * 100}%`,
+                          backgroundColor: '#b24d16',
+                        }}
+                        aria-valuenow={classItem.progress.completedChapters}
+                        aria-valuemin={0}
+                        aria-valuemax={classItem.progress.totalChapters}
+                      ></div>
+                      <img
+                        className="rocket-icon"
+                        src={rocket}
+                        alt="Rocket"
+                        style={{
+                          left: `${(classItem.progress.completedChapters / classItem.progress.totalChapters) * 100}%`,
+                        }}
+                      />
+                    </div>
+                    <span className="main-page__progress-text">
+                      {classItem.progress.completedChapters} / {classItem.progress.totalChapters}
+                    </span>
+                    
+                    {/* Delete Button */}
+                    <button 
+                      className="main-page__delete-btn"
+                      onClick={(e) => handleDeleteClick(e, classItem._id)}
+                      aria-label="Delete class"
+                      disabled={deletingClassId === classItem._id}
+                    >
+                      <img 
+                        src={trash} 
+                        alt="Delete" 
+                        className="main-page__delete-icon" 
+                      />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <p className="main-page__no-classes">No classes found. Add a syllabus to get started!</p>
-          )}
+              ))
+            ) : (
+              <p className="main-page__no-classes">No classes found. Add a syllabus to get started!</p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

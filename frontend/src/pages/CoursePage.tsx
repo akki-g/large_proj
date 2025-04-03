@@ -36,6 +36,9 @@ const CoursePage: React.FC = () => {
 
   useEffect(() => {
     const getClassContent = async () => {
+      // Record the start time of the data fetching
+      const startTime = new Date().getTime();
+      
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
@@ -65,10 +68,24 @@ const CoursePage: React.FC = () => {
         } else {
           setError('No class data found');
         }
+        
+        // Calculate how much time has passed
+        const endTime = new Date().getTime();
+        const timeElapsed = endTime - startTime;
+        
+        // If less than 500ms (0.5 seconds) has passed, add a delay
+        if (timeElapsed < 500) {
+          const remainingTime = 500 - timeElapsed;
+          setTimeout(() => {
+            setLoading(false);
+          }, remainingTime);
+        } else {
+          setLoading(false);
+        }
+        
       } catch (err: any) {
         setError(err.response?.data?.message || 'Failed to load class content');
         console.error('Error fetching class content:', err);
-      } finally {
         setLoading(false);
       }
     };
@@ -93,21 +110,15 @@ const CoursePage: React.FC = () => {
     navigate('/main');
   };
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="course-page-root">
-        <NavBar />
-        <div className="course-page-wrapper">
-          <Container className="course-page-container">
-            <div className="loading-spinner">Loading class content...</div>
-          </Container>
-        </div>
-      </div>
-    );
-  }
+  // Loading Screen Component
+  const LoadingScreen = () => (
+    <div className="course-page__loading-screen">
+      <div className="course-page__loading-spinner"></div>
+      <p>Loading course content...</p>
+    </div>
+  );
 
-  // Error state
+  // Error state with loading screen component
   if (error) {
     return (
       <div className="course-page-root">
@@ -129,90 +140,95 @@ const CoursePage: React.FC = () => {
   return (
     <div className="course-page-root">
       <NavBar />
-      <div className="course-page-wrapper">
-        <Container fluid className="course-page-container">
-          <Row className="course-header">
-            <Col>
-              {classData && (
-                <div className="class-info">
-                  <h1>{classData.name}</h1>
-                  <h4>Course Number: {classData.number}</h4>
-                </div>
-              )}
-              <Button 
-                variant="outline-secondary" 
-                className="back-button"
-                onClick={handleBackClick}
-              >
-                ← Back to Dashboard
-              </Button>
-            </Col>
-          </Row>
+      {loading ? (
+        // Display loading screen while content is loading
+        <LoadingScreen />
+      ) : (
+        <div className="course-page-wrapper">
+          <Container fluid className="course-page-container">
+            <Row className="course-header">
+              <Col>
+                {classData && (
+                  <div className="class-info">
+                    <h1>{classData.name}</h1>
+                    <h4>Course Number: {classData.number}</h4>
+                  </div>
+                )}
+                <Button 
+                  variant="outline-secondary" 
+                  className="back-button"
+                  onClick={handleBackClick}
+                >
+                  ← Back to Dashboard
+                </Button>
+              </Col>
+            </Row>
 
-          <Row className="chapters-container">
-            <Col>
-              {classData && classData.chapters && classData.chapters.length > 0 ? (
-                <div className="custom-chapters">
-                  {classData.chapters.map((chapter) => (
-                    <div key={chapter._id} className="chapter-item">
-                      <div 
-                        className={`chapter-header ${expandedChapters[chapter._id] ? 'expanded' : ''}`}
-                        onClick={() => toggleChapter(chapter._id)}
-                      >
-                        <div className="chapter-header-content">
-                          <span className="chapter-title">{chapter.chapterName}</span>
-                          {chapter.isCompleted && (
-                            <span className="completed-badge">Completed</span>
-                          )}
-                          <span className="chapter-toggle-icon">
-                            {expandedChapters[chapter._id] ? '−' : '+'}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {expandedChapters[chapter._id] && (
+            <Row className="chapters-container">
+              <Col>
+                {classData && classData.chapters && classData.chapters.length > 0 ? (
+                  <div className="custom-chapters">
+                    {classData.chapters.map((chapter) => (
+                      <div key={chapter._id} className="chapter-item">
                         <div 
-                          className="chapter-content"
-                          style={{
-                            animationName: 'expandContent'
-                          }}
+                          className={`chapter-header ${expandedChapters[chapter._id] ? 'expanded' : ''}`}
+                          onClick={() => toggleChapter(chapter._id)}
                         >
-                          <h3>Summary</h3>
-                          <div className="chapter-summary">
-                            {chapter.summary}
+                          <div className="chapter-header-content">
+                            <span className="chapter-title">{chapter.chapterName}</span>
+                            {chapter.isCompleted && (
+                              <span className="completed-badge">Completed</span>
+                            )}
+                            <span className="chapter-toggle-icon">
+                              {expandedChapters[chapter._id] ? '−' : '+'}
+                            </span>
                           </div>
-                          
-                          {chapter.attempts > 0 && (
-                            <div className="quiz-status">
-                              <p>Previous Score: {chapter.quizScore}/10</p>
-                              <p>Total Attempts: {chapter.attempts}</p>
-                            </div>
-                          )}
-                          
-                          <Button 
-                            variant="primary" 
-                            className="quiz-button"
-                            onClick={() => handleQuizClick(chapter._id)}
-                          >
-                            {chapter.attempts > 0 ? "Retake Quiz" : "Take Quiz"}
-                          </Button>
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="no-content">
-                  <p>No chapters found for this course.</p>
-                  <Button variant="primary" onClick={handleBackClick}>
-                    Return to Dashboard
-                  </Button>
-                </div>
-              )}
-            </Col>
-          </Row>
-        </Container>
-      </div>
+                        
+                        {expandedChapters[chapter._id] && (
+                          <div 
+                            className="chapter-content"
+                            style={{
+                              animationName: 'expandContent'
+                            }}
+                          >
+                            <h3>Summary</h3>
+                            <div className="chapter-summary">
+                              {chapter.summary}
+                            </div>
+                            
+                            {chapter.attempts > 0 && (
+                              <div className="quiz-status">
+                                <p>Previous Score: {chapter.quizScore}/10</p>
+                                <p>Total Attempts: {chapter.attempts}</p>
+                              </div>
+                            )}
+                            
+                            <Button 
+                              variant="primary" 
+                              className="quiz-button"
+                              onClick={() => handleQuizClick(chapter._id)}
+                            >
+                              {chapter.attempts > 0 ? "Retake Quiz" : "Take Quiz"}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-content">
+                    <p>No chapters found for this course.</p>
+                    <Button variant="primary" onClick={handleBackClick}>
+                      Return to Dashboard
+                    </Button>
+                  </div>
+                )}
+              </Col>
+            </Row>
+          </Container>
+        </div>
+      )}
     </div>
   );
 };

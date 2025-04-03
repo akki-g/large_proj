@@ -106,6 +106,7 @@ const QuizPage: React.FC = () => {
     
     setSubmitting(true);
     setError('');
+    setLoading(true); // Show loading when submitting quiz
     
     try {
       const token = localStorage.getItem('token');
@@ -141,6 +142,7 @@ const QuizPage: React.FC = () => {
       console.error('Error submitting quiz:', err);
     } finally {
       setSubmitting(false);
+      setLoading(false); // Hide loading when submission is complete
     }
   };
 
@@ -152,16 +154,33 @@ const QuizPage: React.FC = () => {
     // Reset the quiz
     setQuizResult(null);
     setAnswers({});
+    setLoading(true); // Show loading when reloading the quiz
     window.location.reload(); // Reload to get fresh questions
   };
 
-  // Loading state
-  if (loading) {
+  // Loading Screen Component
+  const LoadingScreen = () => (
+    <div className="quiz-page__loading-screen">
+      <div className="quiz-page__loading-spinner"></div>
+      <p>{submitting ? 'Submitting your answers...' : 'Loading quiz questions...'}</p>
+    </div>
+  );
+
+  // Error state with loading screen component
+  if (error && !loading) {
     return (
-      <div>
+      <div className="quiz-page-root">
         <NavBar />
-        <div className="quiz-page-container">
-          <div className="loading-message">Loading quiz questions...</div>
+        <div className="quiz-page-wrapper">
+          <Container className="quiz-page-container">
+            <Alert variant="danger">{error}</Alert>
+            <Button 
+              variant="primary" 
+              onClick={handleBackClick}
+            >
+              Back to Course
+            </Button>
+          </Container>
         </div>
       </div>
     );
@@ -170,169 +189,173 @@ const QuizPage: React.FC = () => {
   return (
     <div className="quiz-page-root">
       <NavBar />
-      <div className="quiz-page-wrapper">
-        <Container className="quiz-page-container">
-        <Row className="quiz-header">
-          <Col>
-            <Button 
-              variant="outline-secondary" 
-              className="back-button"
-              onClick={handleBackClick}
-            >
-              ← Back to Course
-            </Button>
-            <h1>{chapterName || 'Chapter Quiz'}</h1>
-          </Col>
-        </Row>
-
-        {error && (
-          <Row>
+      {loading ? (
+        // Display loading screen while content is loading
+        <LoadingScreen />
+      ) : (
+        <div className="quiz-page-wrapper">
+          <Container className="quiz-page-container">
+          <Row className="quiz-header">
             <Col>
-              <Alert variant="danger">{error}</Alert>
+              <Button 
+                variant="outline-secondary" 
+                className="back-button"
+                onClick={handleBackClick}
+              >
+                ← Back to Course
+              </Button>
+              <h1>{chapterName || 'Chapter Quiz'}</h1>
             </Col>
           </Row>
-        )}
 
-        {quizResult ? (
-          // Show quiz results
-          <Row>
-            <Col md={10} lg={8} className="mx-auto">
-              <Card className="quiz-result-card">
-                <Card.Body>
-                  <h2 className="text-center mb-4">Quiz Results</h2>
-                  
-                  <div className="score-summary">
-                    <h3 className={quizResult.passed ? 'text-success' : 'text-danger'}>
-                      Score: {quizResult.score}/10
-                    </h3>
-                    <p>You answered {quizResult.correctCount} out of {quizResult.totalQuestions} questions correctly.</p>
+          {error && (
+            <Row>
+              <Col>
+                <Alert variant="danger">{error}</Alert>
+              </Col>
+            </Row>
+          )}
+
+          {quizResult ? (
+            // Show quiz results
+            <Row>
+              <Col md={10} lg={8} className="mx-auto">
+                <Card className="quiz-result-card">
+                  <Card.Body>
+                    <h2 className="text-center mb-4">Quiz Results</h2>
                     
-                    <ProgressBar 
-                      now={quizResult.score * 10} 
-                      variant={quizResult.passed ? "success" : "danger"}
-                      className="score-progress"
-                    />
-                    
-                    <div className="result-message mt-3">
-                      {quizResult.passed ? (
-                        <Alert variant="success">
-                          <strong>Congratulations!</strong> You passed the quiz.
-                          {quizResult.chapterCompleted && " This chapter is now marked as completed."}
-                        </Alert>
-                      ) : (
-                        <Alert variant="warning">
-                          <strong>Almost there!</strong> You need a score of 8 or higher to pass.
-                        </Alert>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="result-actions mt-4">
-                    <Button 
-                      variant="primary" 
-                      onClick={handleBackClick}
-                      className="me-3"
-                    >
-                      Return to Course
-                    </Button>
-                    
-                    {!quizResult.passed && (
-                      <Button 
-                        variant="outline-primary" 
-                        onClick={handleTryAgain}
-                      >
-                        Try Again
-                      </Button>
-                    )}
-                  </div>
-                  
-                  <h4 className="detailed-results-header mt-5">Detailed Results</h4>
-                  {quizResult.results.map((result, index) => (
-                    <Card 
-                      key={result.questionId} 
-                      className={`question-result ${result.isCorrect ? 'correct' : 'incorrect'}`}
-                      border={result.isCorrect ? "success" : "danger"}
-                    >
-                      <Card.Body>
-                        <Card.Title>Question {index + 1}</Card.Title>
-                        <Card.Text>{result.question}</Card.Text>
-                        <div className="answers-review">
-                          <p>Your answer: <span className={result.isCorrect ? 'text-success' : 'text-danger'}>{result.yourAnswer}</span></p>
-                          {!result.isCorrect && <p>Correct answer: <span className="text-success">{result.correctAnswer}</span></p>}
-                        </div>
-                      </Card.Body>
-                    </Card>
-                  ))}
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        ) : (
-          // Show quiz form
-          <Row>
-            <Col md={10} lg={8} className="mx-auto">
-              <Card className="quiz-form-card">
-                <Card.Body>
-                  <h2 className="quiz-instructions">
-                    Instructions: Select the correct answer for each question
-                  </h2>
-                  
-                  <Form onSubmit={handleQuizSubmit}>
-                    {questions.map((question, qIndex) => (
-                      <div key={question._id} className="question-container">
-                        <h3 className="question-text">
-                          <span className="question-number">{qIndex + 1}.</span> {question.question}
-                        </h3>
-                        
-                        <div className="options-container">
-                          {[
-                            { key: 'option1', value: question.option1 },
-                            { key: 'option2', value: question.option2 },
-                            { key: 'option3', value: question.option3 },
-                            { key: 'option4', value: question.option4 }
-                          ].map((option) => (
-                            <Form.Check
-                              key={`${question._id}_${option.key}`}
-                              type="radio"
-                              id={`${question._id}_${option.key}`}
-                              name={`quiz_${question._id}`}
-                              label={option.value}
-                              value={option.value}
-                              onChange={() => handleAnswerChange(question._id, option.value)}
-                              checked={answers[question._id] === option.value}
-                              className="quiz-option"
-                            />
-                          ))}
-                        </div>
+                    <div className="score-summary">
+                      <h3 className={quizResult.passed ? 'text-success' : 'text-danger'}>
+                        Score: {quizResult.score}/10
+                      </h3>
+                      <p>You answered {quizResult.correctCount} out of {quizResult.totalQuestions} questions correctly.</p>
+                      
+                      <ProgressBar 
+                        now={quizResult.score * 10} 
+                        variant={quizResult.passed ? "success" : "danger"}
+                        className="score-progress"
+                      />
+                      
+                      <div className="result-message mt-3">
+                        {quizResult.passed ? (
+                          <Alert variant="success">
+                            <strong>Congratulations!</strong> You passed the quiz.
+                            {quizResult.chapterCompleted && " This chapter is now marked as completed."}
+                          </Alert>
+                        ) : (
+                          <Alert variant="warning">
+                            <strong>Almost there!</strong> You need a score of 8 or higher to pass.
+                          </Alert>
+                        )}
                       </div>
-                    ))}
+                    </div>
                     
-                    <div className="quiz-actions mt-4">
+                    <div className="result-actions mt-4">
                       <Button 
-                        variant="secondary" 
+                        variant="primary" 
                         onClick={handleBackClick}
                         className="me-3"
                       >
-                        Cancel
+                        Return to Course
                       </Button>
-                      <Button 
-                        variant="primary" 
-                        type="submit"
-                        disabled={submitting || Object.keys(answers).length < questions.length}
-                      >
-                        {submitting ? 'Submitting...' : 'Submit Quiz'}
-                      </Button>
+                      
+                      {!quizResult.passed && (
+                        <Button 
+                          variant="outline-primary" 
+                          onClick={handleTryAgain}
+                        >
+                          Try Again
+                        </Button>
+                      )}
                     </div>
-                  </Form>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        )}
-              </Container>
-      </div>
+                    
+                    <h4 className="detailed-results-header mt-5">Detailed Results</h4>
+                    {quizResult.results.map((result, index) => (
+                      <Card 
+                        key={result.questionId} 
+                        className={`question-result ${result.isCorrect ? 'correct' : 'incorrect'}`}
+                        border={result.isCorrect ? "success" : "danger"}
+                      >
+                        <Card.Body>
+                          <Card.Title>Question {index + 1}</Card.Title>
+                          <Card.Text>{result.question}</Card.Text>
+                          <div className="answers-review">
+                            <p>Your answer: <span className={result.isCorrect ? 'text-success' : 'text-danger'}>{result.yourAnswer}</span></p>
+                            {!result.isCorrect && <p>Correct answer: <span className="text-success">{result.correctAnswer}</span></p>}
+                          </div>
+                        </Card.Body>
+                      </Card>
+                    ))}
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+          ) : (
+            // Show quiz form
+            <Row>
+              <Col md={10} lg={8} className="mx-auto">
+                <Card className="quiz-form-card">
+                  <Card.Body>
+                    <h2 className="quiz-instructions">
+                      Instructions: Select the correct answer for each question
+                    </h2>
+                    
+                    <Form onSubmit={handleQuizSubmit}>
+                      {questions.map((question, qIndex) => (
+                        <div key={question._id} className="question-container">
+                          <h3 className="question-text">
+                            <span className="question-number">{qIndex + 1}.</span> {question.question}
+                          </h3>
+                          
+                          <div className="options-container">
+                            {[
+                              { key: 'option1', value: question.option1 },
+                              { key: 'option2', value: question.option2 },
+                              { key: 'option3', value: question.option3 },
+                              { key: 'option4', value: question.option4 }
+                            ].map((option) => (
+                              <Form.Check
+                                key={`${question._id}_${option.key}`}
+                                type="radio"
+                                id={`${question._id}_${option.key}`}
+                                name={`quiz_${question._id}`}
+                                label={option.value}
+                                value={option.value}
+                                onChange={() => handleAnswerChange(question._id, option.value)}
+                                checked={answers[question._id] === option.value}
+                                className="quiz-option"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                      
+                      <div className="quiz-actions mt-4">
+                        <Button 
+                          variant="secondary" 
+                          onClick={handleBackClick}
+                          className="me-3"
+                        >
+                          Cancel
+                        </Button>
+                        <Button 
+                          variant="primary" 
+                          type="submit"
+                          disabled={submitting || Object.keys(answers).length < questions.length}
+                        >
+                          {submitting ? 'Submitting...' : 'Submit Quiz'}
+                        </Button>
+                      </div>
+                    </Form>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+          )}
+                </Container>
+        </div>
+      )}
     </div>
-
   );
 };
 
