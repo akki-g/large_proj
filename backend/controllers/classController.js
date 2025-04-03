@@ -9,14 +9,63 @@ const tokenController = require('./tokenController');
 
 // POST /api/classes
 //helper function to extract keywords from syllabus
-async function generateChapters(syllabusText) {
+
+async function extractKeywords(syllabusText) {
+    try{
+        const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+        const prompt = 
+        `
+            Based on the following syllabus text, extract the key concepts and topics that are essential for understanding the course material:
+            ${syllabusText}
+            Keep the course name and number in mind.
+            Get any keywords that relate to the course topics, chapters, and unit names.
+            These keywords should be relevant to the course content and can include terms, phrases, or concepts that are important for students to know.
+            They are going to be used to create chapters based on the key words in the syllabus.
+            If the syllabus is too long, please summarize the syllabus and extract the keywords from the summary.
+            if the syllabus contains any images/binary data, please ignore them.
+        `;
+
+        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+            model: 'gpt-4o', // Using the latest available model
+            messages: [
+                { 
+                    role: 'system', 
+                    content: 'You are a helpful assistant that generates educational content.'
+                },
+                { 
+                    role: 'user', 
+                    content: prompt 
+                }
+            ],
+            temperature: 0.7
+        }, {
+            headers: {
+                'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const responseContent = response.data.choices[0].message.content.trim();
+        console.log('Extracted keywords:', responseContent);
+        return responseContent
+
+    } catch (error) {
+        console.error('Error extracting keywords:', error);
+        throw new Error('Failed to extract keywords.');
+    }
+}
+async function generateChapters(syllabusText, className) {
     try {
         const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
+        const keywords = await extractKeywords(syllabusText);
         const prompt = 
         `
-            Based on the following syllabus text, generate a list of 5 to 10 chapter titles for a class study plan:
-            ${syllabusText}
+            Based on the following keywords extracted from the syllabus, generate a list of chapter titles for a course.:
+            ${keywords}
+            For the course: ${className}
+            The chapter titles should be relevant to the course content and can include terms, phrases, or concepts that are important for students to know.
+            The chapter titles should be concise and informative, reflecting the main topics covered in the course.
             Please return the chapter titles in RAW JSON format as an array of strings.
             Return only the JSON array, without any additional text or explanation.
 
@@ -171,7 +220,7 @@ exports.createClass = async (req, res) => {
         const savedClass = await newClass.save();
 
         // Generate chapters based on the syllabus text
-        const chapterTitles = await generateChapters(syllabusText);
+        const chapterTitles = await generateChapters(syllabusText, name);
         const chapterSummaries = await generateChapterSummaries(chapterTitles, name);
 
         // Create chapters

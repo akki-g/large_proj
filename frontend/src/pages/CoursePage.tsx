@@ -133,6 +133,12 @@ const CoursePage: React.FC = () => {
         <Container fluid className="course-page-container">
           <Row className="course-header">
             <Col>
+              {classData && (
+                <div className="class-info">
+                  <h1>{classData.name}</h1>
+                  <h4>Course Number: {classData.number}</h4>
+                </div>
+              )}
               <Button 
                 variant="outline-secondary" 
                 className="back-button"
@@ -140,12 +146,6 @@ const CoursePage: React.FC = () => {
               >
                 ← Back to Dashboard
               </Button>
-              {classData && (
-                <div className="class-info">
-                  <h1>{classData.name}</h1>
-                  <h4>Course Number: {classData.number}</h4>
-                </div>
-              )}
             </Col>
           </Row>
 

@@ -45,8 +45,8 @@ body {
 }
 
 .back-button {
-  margin-bottom: 15px;
-  color: #2d6169;
+  margin: 10px;
+  color: #22454a;
   border-color: #2d6169;
   transition: all 0.3s ease;
 }
@@ -190,7 +190,7 @@ body {
 /* Chapter content */
 /* Add animation for expansion/collapse */
 .chapter-content {
-  background-color: #f5f1e9;
+  background-color: #f0d5b0;
   padding: 20px;
   border-radius: 0 0 10px 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -253,13 +253,13 @@ body {
 .chapter-summary {
   margin: 15px 0;
   line-height: 1.6;
-  color: #333;
+  color: #000000;
   white-space: pre-line;
   max-height: 300px;
   overflow-y: auto;
   padding: 10px;
   border-left: 3px solid #2d6169;
-  background-color: rgba(45, 97, 105, 0.05);
+  background-color: rgba(131, 115, 93, 0.05);
   border-radius: 0 5px 5px 0;
 }
 
