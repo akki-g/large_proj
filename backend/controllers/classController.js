@@ -15,14 +15,22 @@ async function extractKeywords(syllabusText) {
         const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
         const prompt = 
         `
-            Based on the following syllabus text, extract the key concepts and topics that are essential for understanding the course material:
+            Based on the following syllabus text, identify and extract the most important key concepts, terms, and phrases that are essential for understanding the course material and structure:
             ${syllabusText}
-            Keep the course name and number in mind.
-            Get any keywords that relate to the course topics, chapters, and unit names.
-            These keywords should be relevant to the course content and can include terms, phrases, or concepts that are important for students to know.
-            They are going to be used to create chapters based on the key words in the syllabus.
-            If the syllabus is too long, please summarize the syllabus and extract the keywords from the summary.
-            if the syllabus contains any images/binary data, please ignore them.
+            Keep the course name and number in mind while analyzing the syllabus. 
+            Focus on recognizing topics, themes, and learning objectives that are repeated, emphasized, or organized into units or chapters.
+            For each key concept or keyword you extract, also provide a brief contextual explanation or a short phrase that describes its relevance to the course 
+            (e.g., what it relates to, what unit it belongs to, or what students will learn from it).
+            These keyphrases and context snippets will be used to generate future chapter titles and summaries, so ensure they are specific, informative, and relevant to the course structure and academic goals.
+            If the syllabus is too long, summarize it first, then extract keywords and keyphrases from that summary.
+            Ignore any binary data, tables, or images.
+            Output Format Example:
+
+            Keyword: Photosynthesis
+            Context: Core biological process covered in Unit 2, focusing on light-dependent and light-independent reactions.
+
+            Keyword: Supply and Demand
+            Context: Central economic model introduced in Chapter 1 to explain market behavior.
         `;
 
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
@@ -54,14 +62,12 @@ async function extractKeywords(syllabusText) {
         throw new Error('Failed to extract keywords.');
     }
 }
-async function generateChapters(syllabusText, className) {
+async function generateChapters(keywords, className) {
     try {
         const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-
-        const keywords = await extractKeywords(syllabusText);
         const prompt = 
         `
-            Based on the following keywords extracted from the syllabus, generate a list of chapter titles for a course.:
+            Based on the following keywords extracted from the syllabus, generate a list of at most 10 chapters for a course.
             ${keywords}
             For the course: ${className}
             The chapter titles should be relevant to the course content and can include terms, phrases, or concepts that are important for students to know.
@@ -115,7 +121,7 @@ async function generateChapters(syllabusText, className) {
 
 //Generate Chapter summaries
 
-async function generateChapterSummaries(chapterNames, className) {
+async function generateChapterSummaries(chapterNames, keywords, className) {
     try {
         const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -124,7 +130,14 @@ async function generateChapterSummaries(chapterNames, className) {
         
         Chapter titles: ${chapterNames.join(', ')}
         Class name: ${className}
+        Keywords/Context: ${keywords}
 
+        Each summary should provide a brief overview of the main topics, concepts, and objectives covered in that chapter.
+        The summaries should be informative and relevant to the chapter titles, helping students understand what they can expect to learn in each chapter.
+        The summaries should be written in a clear and concise manner, using appropriate academic language.
+        The summaries should be suitable for a syllabus or course outline, and should not include any extraneous information or personal opinions.
+        The summaries should be structured in a way that allows students to quickly grasp the key points and themes of each chapter.
+        The summaries should be written in a way that is accessible to students at the undergraduate level, and should avoid overly technical jargon or complex language.
         Make sure that each chapter summary is concise and relevant to the chapter title and at least 2 paragraphs long.
 
         Return the chapter summaries in JSON format as an array of strings, with each string corresponding to a chapter title.
@@ -220,8 +233,9 @@ exports.createClass = async (req, res) => {
         const savedClass = await newClass.save();
 
         // Generate chapters based on the syllabus text
-        const chapterTitles = await generateChapters(syllabusText, name);
-        const chapterSummaries = await generateChapterSummaries(chapterTitles, name);
+        const keywords = await extractKeywords(syllabusText);
+        const chapterTitles = await generateChapters(keywords, name);
+        const chapterSummaries = await generateChapterSummaries(chapterTitles, keywords, name);
 
         // Create chapters
         const chapterIds = [];
