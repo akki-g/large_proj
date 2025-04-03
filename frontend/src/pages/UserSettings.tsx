@@ -36,7 +36,7 @@ const UserSettings: React.FC = () => {
       }
 
       // Call the API to delete the account with password verification
-      const response = await axios.post('https://api.scuba2havefun.xyz/api/auth/delete-account', {
+      await axios.post('https://api.scuba2havefun.xyz/api/auth/delete-account', {
         password,
         jwtToken
       });
