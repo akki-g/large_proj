@@ -13,15 +13,6 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Middleware
-app.use(cors({ 
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['Content-Length', 'X-Content-Type-Options'],
-  credentials: true,
-  maxAge: 86400
-}));
-app.options('*', cors({ origin: '*' }));
 
 app.use((req, res, next) => {
   console.log('Request Content-Type:', req.headers['content-type']);
