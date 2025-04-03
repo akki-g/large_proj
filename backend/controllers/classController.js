@@ -73,8 +73,8 @@ async function generateChapters(keywords, className) {
             The chapter titles should be relevant to the course content and can include terms, phrases, or concepts that are important for students to know.
             The chapter titles should be concise and informative, reflecting the main topics covered in the course.
             Please return the chapter titles in RAW JSON format as an array of strings.
+            One example of a chapter title is: "Chapter 1: Introduction to Quantum Mechanics"
             Return only the JSON array, without any additional text or explanation.
-
         `;
 
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
@@ -126,21 +126,21 @@ async function generateChapterSummaries(chapterNames, keywords, className) {
         const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
         const prompt = 
-        `Based on the given chapter titles, and class names, generate a summary for each chapter.
-        
-        Chapter titles: ${chapterNames.join(', ')}
-        Class name: ${className}
-        Keywords/Context: ${keywords}
+        `You are given a list of chapter titles from a course, along with the course name and a set of keywords and context extracted from the syllabus. 
+        Your task is to generate detailed, textbook-style summaries for each chapter.
+        Chapter Titles: ${chapterNames.join(', ')}
+        Course Name: ${className}
+        Keywords & Context: ${keywords}
 
-        Each summary should provide a brief overview of the main topics, concepts, and objectives covered in that chapter.
-        The summaries should be informative and relevant to the chapter titles, helping students understand what they can expect to learn in each chapter.
-        The summaries should be written in a clear and concise manner, using appropriate academic language.
-        The summaries should be suitable for a syllabus or course outline, and should not include any extraneous information or personal opinions.
-        The summaries should be structured in a way that allows students to quickly grasp the key points and themes of each chapter.
-        The summaries should be written in a way that is accessible to students at the undergraduate level, and should avoid overly technical jargon or complex language.
-        Make sure that each chapter summary is concise and relevant to the chapter title and at least 2 paragraphs long.
-
-        Return the chapter summaries in JSON format as an array of strings, with each string corresponding to a chapter title.
+        Each chapter summary should:
+        Clearly outline the main themes, core concepts, learning objectives, and essential terminology relevant to the chapter title.
+        Use the keywords and syllabus context to inform the content and ensure alignment with the course's academic structure and progression.
+        Be written in a way that mirrors a textbook: formal tone, logically organized, and educational in nature.
+        Serve as a preview of the chapter for students, giving them an understanding of what they will learn, why it matters, and how it fits into the overall course.
+        Avoid repetition, fluff, or overly general descriptions — be focused, specific, and accurate.
+        Be at least two full paragraphs in length per chapter.
+        Use accessible academic language for undergraduate students, avoiding unnecessary jargon while maintaining rigor.
+        Return the output in JSON format as an array of strings, where each string corresponds to the detailed summary of a chapter title in the same order as provided.
         `;
 
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
