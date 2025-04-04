@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart'; // Add this package for date formatting
+import 'quiz.dart';
 
 const String apiBaseUrl = 'https://api.scuba2havefun.xyz/api';
 
@@ -190,9 +191,19 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
 
   // Navigate to quiz for a specific chapter
   void navigateToQuiz(String chapterId, String chapterName) {
-    // This will be implemented later
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Quiz for $chapterName will be implemented soon')),
+    // Get the course ID from the widget
+    String courseId = widget.courseId;
+
+    // Navigate to the quiz page
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => QuizPage(
+          courseId: courseId,
+          chapterId: chapterId,
+          chapterName: chapterName,
+        ),
+      ),
     );
   }
 
