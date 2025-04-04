@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Modal, Button } from 'react-bootstrap'; // Import Modal and Button from react-bootstrap
 import NavBar from '../pages/NavBar'; // Import NavBar component
 import './MainPage.css'; // Import CSS styles
-import 'bootstrap/dist/css/bootstrap.min.css'; // Bootstrap for buttons
-
 
 const rocket = "/rocket.png"; // Path to rocket image
 const trash = "/trash.png"; // Path to trash icon - you'll need to add this to your public folder
@@ -29,7 +26,6 @@ const MainPage: React.FC = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [deletingClassId, setDeletingClassId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true); // Add loading state
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   // Function to fetch classes
   const fetchClasses = async () => {
@@ -98,43 +94,45 @@ const MainPage: React.FC = () => {
   };
 
 
-  const handleDeleteClick = async () => {
-    setShowConfirmModal(false);
-    
-    setLoading(true);
+  const handleDeleteClick = async (e: React.MouseEvent, classID: string) => {
+    e.stopPropagation(); 
+
+    if (window.confirm('Are you sure you want to delete this class? This action cannot be undone.')) {
+      setDeletingClassId(classID);
+      setLoading(true);
       
-    try {
-      const jwtToken = localStorage.getItem('token');
-      if (!jwtToken) {
-        console.error('No JWT token found. Please log in.');
-        navigate('/login');
-        return;
-      }
-      
-      const response = await axios.post(
-        'https://api.scuba2havefun.xyz/api/classes/delete',
-        {
-          classID: deletingClassId,
-          jwtToken: jwtToken,
+      try {
+        const jwtToken = localStorage.getItem('token');
+        if (!jwtToken) {
+          console.error('No JWT token found. Please log in.');
+          navigate('/login');
+          return;
         }
-      );
         
-      // Update JWT token if provided in the response
-      if (response.data.jwtToken) {
-        localStorage.setItem('token', response.data.jwtToken);
+        const response = await axios.post(
+          'https://api.scuba2havefun.xyz/api/classes/delete',
+          {
+            classID: classID,
+            jwtToken: jwtToken,
+          }
+        );
+        
+        // Update JWT token if provided in the response
+        if (response.data.jwtToken) {
+          localStorage.setItem('token', response.data.jwtToken);
+        }
+        
+        // Refresh the class list
+        fetchClasses();
+        
+      } catch (error) {
+        console.error('Error deleting class:', error);
+        alert('An error occurred while deleting the class. Please try again.');
+        setLoading(false); // Ensure loading is set to false if there's an error
+      } finally {
+        setDeletingClassId(null);
       }
-      
-      // Refresh the class list
-      fetchClasses();
-      
-    } catch (error) {
-      console.error('Error deleting class:', error);
-      alert('An error occurred while deleting the class. Please try again.');
-      setLoading(false); // Ensure loading is set to false if there's an error
-    } finally {
-      setDeletingClassId(null);
     }
-    
   };
 
   // Loading screen component
@@ -214,11 +212,7 @@ const MainPage: React.FC = () => {
                     {/* Delete Button */}
                     <button 
                       className="main-page__delete-btn"
-                      onClick={(e) => {
-                        setDeletingClassId(classItem._id);
-                        setShowConfirmModal(true);
-                        e.stopPropagation(); // Prevent triggering the class click event
-                      }}
+                      onClick={(e) => handleDeleteClick(e, classItem._id)}
                       aria-label="Delete class"
                       disabled={deletingClassId === classItem._id}
                     >
@@ -237,30 +231,6 @@ const MainPage: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* Confirmation Modal */}
-      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Delete Class</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to delete this class? This action cannot be undone.
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => {
-            setShowConfirmModal(false);
-            setDeletingClassId(null);
-          }}>
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={() => {
-            setShowConfirmModal(false);
-            handleDeleteClick(); // Pass the class ID to the delete function
-          }}>
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   );
 };
