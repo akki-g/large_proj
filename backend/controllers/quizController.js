@@ -240,7 +240,7 @@ exports.submitQuiz = async (req, res) => {
 
         const passed = score >= 8;
     
-        chapter.attempts += 1;
+        chapter.attempts = (chapter.attempts || 0) + 1;
         chapter.quizScore = score;
         
         if (passed && !chapter.isCompleted) {

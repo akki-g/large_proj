@@ -74,7 +74,7 @@ describe('Quiz Controller Tests', () => {
         summary: 'This is a test chapter summary for quiz testing',
         userID: userId,
         quiz: [],
-        attemps: 0 // Note the typo: "attemps" not "attempts"
+        attempts: 0 // Note the typo: "attemps" not "attempts"
       });
       const savedChapter = await testChapter.save();
       testChapterId = savedChapter._id;
@@ -168,7 +168,7 @@ describe('Quiz Controller Tests', () => {
       
       // Reset the chapter's attemps to 0 to ensure clean test
       // Note the typo: "attemps" not "attempts"
-      await Chapter.findByIdAndUpdate(testChapterId, { attemps: 0 });
+      await Chapter.findByIdAndUpdate(testChapterId, { attempts: 0 });
       
       // Prepare answers for submission - create a valid format that matches what the controller expects
       const answers = questions.map(q => ({
@@ -195,7 +195,7 @@ describe('Quiz Controller Tests', () => {
       const updatedChapter = await Chapter.findById(testChapterId).lean();
       
       // Verify attemps (note the typo) have been incremented
-      expect(updatedChapter.attemps).toBeGreaterThanOrEqual(1);
+      expect(updatedChapter.attempts).toBeGreaterThanOrEqual(1);
     });
   });
 });
