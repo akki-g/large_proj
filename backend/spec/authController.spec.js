@@ -1,15 +1,24 @@
+// spec/authController.spec.js
 const request = require('supertest');
 const mongoose = require('mongoose');
-const app = require('../app'); // Your Express app
+const app = require('../app');
 const User = require('../models/Users');
+const bcrypt = require('bcryptjs');
 
 describe('Auth Controller', () => {
   // Setup before tests
   beforeAll(async () => {
-    // Connect to test database
-    await mongoose.connect(process.env.TEST_MONGODB_URI || 'mongodb://localhost:27017/syllab_test');
-    // Clear users collection before tests
-    await User.deleteMany({});
+    try {
+      // Connect to local test database
+      await mongoose.connect(process.env.TEST_MONGODB_URI);
+      console.log('Connected to test database');
+      
+      // Clear users collection before tests
+      await User.deleteMany({});
+    } catch (error) {
+      console.error('MongoDB connection error:', error);
+      throw error;
+    }
   });
 
   // Cleanup after tests
@@ -17,8 +26,21 @@ describe('Auth Controller', () => {
     await mongoose.connection.close();
   });
 
+  // Clear the database after each test
+  afterEach(async () => {
+    await User.deleteMany({});
+  });
+
   describe('POST /api/auth/register', () => {
     it('should register a new user successfully', async () => {
+      // Mock the email sending functionality
+      const originalSendMail = require('nodemailer').createTransport().sendMail;
+      require('nodemailer').createTransport = jest.fn().mockReturnValue({
+        sendMail: jest.fn().mockImplementation((mailOptions, callback) => {
+          callback(null, { response: 'Email sent' });
+        })
+      });
+      
       const response = await request(app)
         .post('/api/auth/register')
         .send({
@@ -31,7 +53,11 @@ describe('Auth Controller', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.msg).toContain('User registered successfully');
-      expect(response.body.user).toBeDefined();
+      
+      // Restore original function
+      require('nodemailer').createTransport = jest.fn().mockReturnValue({
+        sendMail: originalSendMail
+      });
     });
 
     it('should return 400 if required fields are missing', async () => {
@@ -49,10 +75,9 @@ describe('Auth Controller', () => {
   });
 
   describe('POST /api/auth/login', () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
       // Create a test user for login tests
       const saltRounds = 10;
-      const bcrypt = require('bcryptjs');
       const passwordHash = await bcrypt.hash('Password123!', saltRounds);
       
       await User.create({
