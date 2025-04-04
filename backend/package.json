@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test" : "jasmine"
+    "test": "NODE_ENV=test jasmine"
   },
   "keywords": [],
   "author": "",
