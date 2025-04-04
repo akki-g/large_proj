@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'package:file_selector/file_selector.dart';
+import 'package:http_parser/http_parser.dart';
 
 import 'class.dart';
 
@@ -112,6 +113,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
     final XTypeGroup pdfTypeGroup = XTypeGroup(
       label: 'PDFs',
       extensions: ['pdf'],
+      uniformTypeIdentifiers: ['com.adobe.pdf'],
     );
 
     try {
@@ -182,6 +184,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
           'syllabus',
           _selectedXFile!.path,
           filename: _selectedFileName,
+          contentType: MediaType('application', 'pdf'),
         ),
       );
 
