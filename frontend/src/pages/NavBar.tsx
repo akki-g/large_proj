@@ -60,7 +60,7 @@ const NavBar: React.FC = () => {
           </div>
 
           <div className="middle-container">
-            <span className="motto">say sylla-bye to your study needs!</span>
+            <span className="motto">say sylla-bye to your study troubles!</span>
           </div>
 
           {/* Right Side: Navigation Buttons */}
