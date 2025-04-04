@@ -92,7 +92,7 @@ class _ChatPageState extends State<ChatPage> {
   List<ClassModel> _classes = [];
   bool _showEducationalContext = false;
   bool _isSidebarCollapsed = false;
-  
+
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -353,6 +353,156 @@ class _ChatPageState extends State<ChatPage> {
     await _fetchClasses();
   }
 
+  Widget _buildWelcomeMessage() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Text(
+              'Welcome to Syllab.ai Chat!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 24,
+                color: Color(0xFFF9E0C6),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 12),
+            Text(
+              'Ask me anything about your courses, syllabi, or study materials.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChatList() {
+    if (_chats.isEmpty) {
+      return const Center(
+        child: Text(
+          'No chats found.',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
+    }
+    return ListView.builder(
+      itemCount: _chats.length,
+      itemBuilder: (context, index) {
+        final chat = _chats[index];
+        final isActive = _currentChat != null && _currentChat!.id == chat.id;
+        return ListTile(
+          selected: isActive,
+          title: Text(chat.title),
+          trailing: IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () => _deleteChat(chat.id),
+          ),
+          onTap: () => _loadChat(chat.id),
+        );
+      },
+    );
+  }
+
+  Widget _buildClassList() {
+    if (_classes.isEmpty) {
+      return const Center(
+        child: Text(
+          'No classes found.',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
+    }
+    return ListView.builder(
+      itemCount: _classes.length,
+      itemBuilder: (context, index) {
+        final cls = _classes[index];
+        return ListTile(
+          title: Text(cls.name),
+          subtitle: Text(cls.number),
+          onTap: () => _createContextualPrompt(cls.id),
+        );
+      },
+    );
+  }
+
+  Widget _buildMessagesView() {
+    final messages = _currentChat!.messages;
+    return ListView.builder(
+      controller: _scrollController,
+      itemCount: messages.length,
+      itemBuilder: (context, index) {
+        final msg = messages[index];
+        final isAssistant = msg.sender == 'assistant';
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          alignment: isAssistant ? Alignment.centerLeft : Alignment.centerRight,
+          child: Column(
+            crossAxisAlignment:
+                isAssistant ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isAssistant ? Colors.white : const Color(0xFFF9E0C6),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(msg.content),
+              ),
+              if (msg.timestamp != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    _formatDate(msg.timestamp!),
+                    style: const TextStyle(fontSize: 10, color: Colors.grey),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMessageInput() {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              enabled: !_loading,
+              decoration: InputDecoration(
+                hintText: 'Type your message here...',
+                fillColor: const Color(0xFFF9E0C6),
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (value) => setState(() => _message = value),
+              onSubmitted: (_) => _sendMessage(),
+              controller: TextEditingController(text: _message)
+                ..selection = TextSelection.collapsed(offset: _message.length),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.send),
+            onPressed: _loading || _message.trim().isEmpty ? null : _sendMessage,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -389,14 +539,25 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                 ),
               Expanded(
-                child: _currentChat == null
-                    ? _buildWelcomeMessage()
-                    : _buildMessagesView(),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    gradient: RadialGradient(
+                      center: Alignment.center,
+                      radius: 1.0,
+                      colors: [
+                        Color.fromRGBO(26, 27, 26, 1),
+                        Color.fromRGBO(6, 54, 21, 1),
+                      ],
+                    ),
+                  ),
+                  child: _currentChat == null
+                      ? _buildWelcomeMessage()
+                      : _buildMessagesView(),
+                ),
               ),
               _buildMessageInput(),
             ],
           ),
-
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
@@ -481,131 +642,6 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChatList() {
-    if (_chats.isEmpty) {
-      return const Center(
-        child: Text(
-          'No chats found.',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
-        ),
-      );
-    }
-    return ListView.builder(
-      itemCount: _chats.length,
-      itemBuilder: (context, index) {
-        final chat = _chats[index];
-        final isActive = _currentChat != null && _currentChat!.id == chat.id;
-        return ListTile(
-          selected: isActive,
-          title: Text(chat.title),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => _deleteChat(chat.id),
-          ),
-          onTap: () => _loadChat(chat.id),
-        );
-      },
-    );
-  }
-
-  Widget _buildClassList() {
-    if (_classes.isEmpty) {
-      return const Center(
-        child: Text(
-          'No classes found.',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
-        ),
-      );
-    }
-    return ListView.builder(
-      itemCount: _classes.length,
-      itemBuilder: (context, index) {
-        final cls = _classes[index];
-        return ListTile(
-          title: Text(cls.name),
-          subtitle: Text(cls.number),
-          onTap: () => _createContextualPrompt(cls.id),
-        );
-      },
-    );
-  }
-
-  Widget _buildWelcomeMessage() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: const Text(
-          'Welcome to Syllab.ai chat!\nAsk me anything about your courses, syllabi, or study materials.',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16, color: Colors.grey),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMessagesView() {
-    final messages = _currentChat!.messages;
-    return ListView.builder(
-      controller: _scrollController,
-      itemCount: messages.length,
-      itemBuilder: (context, index) {
-        final msg = messages[index];
-        final isAssistant = msg.sender == 'assistant';
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          alignment: isAssistant ? Alignment.centerLeft : Alignment.centerRight,
-          child: Column(
-            crossAxisAlignment: isAssistant ? CrossAxisAlignment.start : CrossAxisAlignment.end,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isAssistant ? Colors.grey[200] : Colors.blue[100],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(msg.content),
-              ),
-              if (msg.timestamp != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(
-                    _formatDate(msg.timestamp!),
-                    style: const TextStyle(fontSize: 10, color: Colors.grey),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildMessageInput() {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              enabled: !_loading,
-              decoration: const InputDecoration(
-                hintText: 'Type your message here...',
-              ),
-              onChanged: (value) => setState(() => _message = value),
-              onSubmitted: (_) => _sendMessage(),
-              controller: TextEditingController(text: _message)
-                ..selection = TextSelection.collapsed(offset: _message.length),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.send),
-            onPressed: _loading || _message.trim().isEmpty ? null : _sendMessage,
           ),
         ],
       ),
