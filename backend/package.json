@@ -5,7 +5,12 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "NODE_ENV=test jasmine"
+    "test": "NODE_ENV=test jasmine",
+    "test:auth": "NODE_ENV=test jasmine spec/auth-controller.spec.js",
+    "test:chat": "NODE_ENV=test jasmine spec/chat-controller.spec.js",
+    "test:class": "NODE_ENV=test jasmine spec/class-controller.spec.js",
+    "test:quiz": "NODE_ENV=test jasmine spec/quiz-controller.spec.js",
+    "test:token": "NODE_ENV=test jasmine spec/token-controller.spec.js"
   },
   "keywords": [],
   "author": "",
@@ -14,7 +19,6 @@
   "devDependencies": {
     "jasmine": "^5.6.0",
     "jasmine-spec-reporter": "^7.0.0",
-    "jest": "^29.7.0",
     "nodemon": "^3.1.9",
     "supertest": "^7.1.0"
   },

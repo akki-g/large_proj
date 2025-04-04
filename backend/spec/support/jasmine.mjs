@@ -4,7 +4,8 @@ export default {
     "**/*[sS]pec.?(m)js"
   ],
   helpers: [
-    "helpers/**/*.?(m)js"
+    "helpers/**/*.?(m)js",
+    "setup.js"
   ],
   env: {
     stopSpecOnExpectationFailure: false,

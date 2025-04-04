@@ -23,7 +23,7 @@ const chapterSchema = new Schema({
     type: Date,
     default: null,
   },
-  attemps: {
+  attempts: {
     type: Number,
     default: 0,
   }
