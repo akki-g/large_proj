@@ -6,12 +6,14 @@ import 'dart:async';
 
 class QuizPage extends StatefulWidget {
   final String courseId;
+  final String classId;
   final String chapterId;
   final String chapterName;
 
   const QuizPage({
     Key? key,
     required this.courseId,
+    required this.classId,
     required this.chapterId,
     required this.chapterName,
   }) : super(key: key);
@@ -61,6 +63,11 @@ class _QuizPageState extends State<QuizPage> {
       print("Chapter ID being sent: ${widget.chapterId}");
       print("JWT Token being sent: $token");
 
+      print('Sending quiz generate request...');
+      print('chapterId: ${widget.chapterId}');
+      print('classId: ${widget.classId}');
+      print('JWT Token: $token');
+
 
       // Make API request with proper authorization header
       final response = await http.post(
@@ -71,6 +78,8 @@ class _QuizPageState extends State<QuizPage> {
         },
         body: jsonEncode({
           'chapterID': widget.chapterId,
+          'classID': widget.classId,
+          'jwtToken': token,
         }),
       );
 
@@ -169,7 +178,9 @@ class _QuizPageState extends State<QuizPage> {
         },
         body: jsonEncode({
           'chapterID': widget.chapterId,
+          'classID': widget.classId, 
           'answers': formattedAnswers,
+          'jwtToken': token,
         }),
       );
 

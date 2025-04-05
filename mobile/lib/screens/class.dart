@@ -190,7 +190,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   }
 
   // Navigate to quiz for a specific chapter
-  void navigateToQuiz(String chapterId, String chapterName) {
+  void navigateToQuiz(ChapterData chapter) {
     // Get the course ID from the widget
     String courseId = widget.courseId;
 
@@ -199,9 +199,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => QuizPage(
-          courseId: courseId,
-          chapterId: chapterId,
-          chapterName: chapterName,
+          courseId: widget.courseId,
+          classId: chapter.classID,
+          chapterId: chapter.id,
+          chapterName: chapter.chapterName,
         ),
       ),
     );
@@ -385,10 +386,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                                     // Quiz button
                                     Center(
                                       child: ElevatedButton(
-                                        onPressed: () => navigateToQuiz(
-                                          chapter.id,
-                                          chapter.chapterName,
-                                        ),
+                                        onPressed: () => navigateToQuiz(chapter),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: const Color(0xFFB94E2F), // Orange-red button
                                           foregroundColor: Colors.white,
