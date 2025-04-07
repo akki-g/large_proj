@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -437,6 +438,10 @@ class _CoursesScreenState extends State<CoursesScreen> {
                   ),
                   ElevatedButton(
                     onPressed: () {
+
+                      FocusScope.of(context).unfocus();
+                      SystemChannels.textInput.invokeMethod('TextInput.hide');
+
                       // Validate inputs
                       if (_courseNameController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
