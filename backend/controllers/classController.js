@@ -127,11 +127,13 @@ async function generateChapterSummaries(chapterNames, className) {
 exports.createClass = async (req, res) => {
     try {
       const { name, number, jwtToken } = req.body;
+      console.log("Request body:", req.body);
       const syllabus = req.file;
   
         if (!name || !number || !syllabus) {
             return res.status(400).json({ msg: "All fields are required." });
         } 
+        console.log("API token:", jwtToken);
         const userData = tokenController.getTokenData(jwtToken);
         const refreshedToken = tokenController.refreshToken(jwtToken);
         console.log("Token data:", userData);
@@ -202,29 +204,26 @@ exports.createClass = async (req, res) => {
 // search and return set of classes, given keyword
 exports.searchClass = async (req, res, next) => {
     try {
-        const { query, jwtToken } = req.body;
+        const { classID, jwtToken } = req.body;
 
         // Validate input
-        if (!query) {
+        if (!classID) {
             return res.status(400).json({ msg: "Class ID is required." });
         }
 
         // Verify JWT and get user ID
         const refreshedToken = tokenController.refreshToken(jwtToken);
         const userData = tokenController.getTokenData(refreshedToken);
-        const userID = userData.payload.user.id;
+        const userID = userData.user.id;
         
         if (!userID) {
             return res.status(401).json({ msg: "Invalid authentication token." });
         }
 
 
-        const classes = await Class.find({
-            userID: userID,
-            $or : [
-                { chapterName: { $regex: query, $options: 'i' } },
-                { summary: { $regex: query, $options: 'i' } }
-            ]
+        const chapters = await Chapter.find({
+            classID: classID,
+            userID: userID
         }).sort({ _id: 1 }); 
 
         res.status(200).json({ 
@@ -249,13 +248,14 @@ exports.modifyClass = async (req, res, next) => {
         }
 
         const targetClass = await Class.findOneAndUpdate(
-            { "_id": classID, "userID": (tokenController.getTokenData(refreshedToken)).payload.id },
+            { "_id": classID, "userID": (tokenController.getTokenData(refreshedToken)).user.id },
             {name, number, syllabus}
         );
 
         if (!targetClass) {
             return res.status(400).json({msg: "Class not found."});
         }
+        const refreshedToken = tokenController.refreshToken(jwtToken);
 
         res.status(200).json({ 
             message: "Class updated.",
@@ -271,14 +271,19 @@ exports.modifyClass = async (req, res, next) => {
 // pass in the mongodb ID as classID
 exports.deleteClass = async (req, res, newToken) => {
     try {
-        const {classID, jwtToken} = req.body
+        const {classID, jwtToken} = req.body;
 
-        const deleted = await Class.findOneAndDelete({"_id": classID, "userID": (tokenController.getTokenData(refreshedToken)).payload.id});
+        const refreshedToken = tokenController.refreshToken(jwtToken); // Fixed: Define before using
+        const userData = tokenController.getTokenData(refreshedToken);
 
+       const deleted = await Class.findOneAndDelete({ 
+            "_id": classID, 
+            "userID": userData.user.id 
+        });
+        
         if (!deleted) {
             return res.status(400).json({msg: "Class not found."});
         }
-
         res.status(200).json({ 
             message: "Class deleted.",
             jwtToken: refreshedToken
@@ -294,12 +299,12 @@ exports.deleteClass = async (req, res, newToken) => {
 //get all classes
 exports.getAllClasses = async (req, res) => {
     try{
-        const token = req.body.token;
+        const token = req.query.token;
         const userData = tokenController.getTokenData(token);
         const userID = userData.user.id;
         const refreshedToken = tokenController.refreshToken(token);
 
-        const classes = await Class.find({userID: userID});
+        const classes = await Class.find({userID : userID}); // Changed findOne to find
         res.status(200).json({classes: classes, token: refreshedToken});
     }
     catch(err){
@@ -307,15 +312,14 @@ exports.getAllClasses = async (req, res) => {
     }
 };
 
-
 exports.getClassWithChapters = async (req, res) => {
     try {
-        const { classID, jwtToken } = req.body;
+        const { classID, jwtToken } = req.query;
         
         // Verify JWT and get user ID
+        const userData = tokenController.getTokenData(jwtToken);
+        const userID = userData.user.id;
         const refreshedToken = tokenController.refreshToken(jwtToken);
-        const userData = tokenController.getTokenData(refreshedToken);
-        const userID = userData.payload.id;
 
         // Find the class and populate the chapters
         const classWithChapters = await Class.findOne({

@@ -8,9 +8,25 @@ const chapterSchema = new Schema({
   className: { type: String, required: true },
   classID: { type: String, required: true },
   summary : { type: String, required: false },
-  quiz: [{ type: Schema.Types.ObjectId, ref: 'Quiz' }],
-  userID: { type: String, required: true } // Alternatively, you might reference the User _id
+  quiz: [{ type: Schema.Types.ObjectId, ref: 'Question' }],
+  userID: { type: String, required: true },
 
+  isCompleted: {
+    type: Boolean,
+    default: false,
+  },
+  quizScore: {
+    type: Number,
+    default: 0,
+  },
+  completedAt: {
+    type: Date,
+    default: null,
+  },
+  attemps: {
+    type: Number,
+    default: 0,
+  }
 });
 
 module.exports = mongoose.model('Chapter', chapterSchema);
