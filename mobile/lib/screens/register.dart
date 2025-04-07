@@ -10,6 +10,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  // Controllers for each input field
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final emailController = TextEditingController();
@@ -17,12 +18,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final confirmPasswordController = TextEditingController();
   final phoneController = TextEditingController();
 
+  // Feedback messages
   String? _errorText;
   String? _successText;
 
+  // Flags for password visibility
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
+  // Flags for password rules
   bool _hasMinLength = false;
   bool _hasUpper = false;
   bool _hasLower = false;
@@ -44,6 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return _hasMinLength && _hasUpper && _hasLower && _hasDigit && _hasSpecial;
   }
 
+  // Styles the input fields
   InputDecoration _roundedInputDecoration(String label) {
     return InputDecoration(
       labelText: label,
@@ -85,27 +90,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final confirmPassword = confirmPasswordController.text;
     final phone = phoneController.text.trim();
     
+    // Clear previous messages
     setState(() {
       _errorText = null;
       _successText = null;
     });
     
-
+    // Check for empty fields
     if ([firstName, lastName, email, password, confirmPassword, phone].any((e) => e.isEmpty)) {
       setState(() => _errorText = 'Please fill all fields.');
       return;
     }
 
+    // Check if passwords match
     if (password != confirmPassword) {
       setState(() => _errorText = 'Passwords do not match.');
       return;
     }
 
+    // Check if password passes all rules
     if (!_isValidPassword(password)) {
       setState(() => _errorText = 'Password must include at least one uppercase, lowercase, number, and special character.');
       return;
     }
 
+    // API endpoint for registration
     final url = Uri.parse('https://api.scuba2havefun.xyz/api/auth/register');
 
     try {
@@ -121,6 +130,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }),
       );
 
+      // Success
       if (response.statusCode == 200 || response.statusCode == 201) {
         setState(() {
           _errorText = null;
@@ -134,6 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
       }
 
+      // Failure
       else {
         String message = 'Registation failed. Try again.';
 
@@ -213,6 +224,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     indent: 20,
                     endIndent: 20,
                   ),
+
+                  // Input fields
                   Text("Register", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   SizedBox(height: 10),
                   TextField(
@@ -230,6 +243,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     decoration: _roundedInputDecoration("Email"),
                   ),
                   SizedBox(height: 10),
+
+                  // Password with rules tracking
                   TextField(
                     controller: passwordController,
                     obscureText: _obscurePassword,
@@ -257,6 +272,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   SizedBox(height: 10),
+
+                  // Confirm password
                   TextField(
                     controller: confirmPasswordController,
                     obscureText: _obscureConfirmPassword,
@@ -279,6 +296,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: phoneController,
                     decoration: _roundedInputDecoration("Phone Number"),
                   ),
+
+                  // Password rules
                   if (passwordController.text.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -297,6 +316,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ),
+
+                  // Error or success messages
                   if (_errorText != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
@@ -316,6 +337,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                   SizedBox(height: 10),
+
+                  // Register button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -332,6 +355,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: Text("Register", style: TextStyle(fontSize: 16)),
                     ),
                   ),
+
+                  // Back to login
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context);

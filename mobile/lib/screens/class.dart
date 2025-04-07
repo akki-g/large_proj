@@ -327,7 +327,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                               ),
                               subtitle: chapter.attempts > 0
                                   ? Text(
-                                'Score: ${(chapter.quizScore * 100).toInt()}% • ${chapter.attempts} attempt${chapter.attempts > 1 ? 's' : ''}',
+                                'Score: ${(chapter.quizScore * 10).toInt()}% • ${chapter.attempts} attempt${chapter.attempts > 1 ? 's' : ''}',
                                 style: TextStyle(
                                   color: chapter.quizScore >= 0.7 ? Colors.green[700] : Colors.orange,
                                 ),

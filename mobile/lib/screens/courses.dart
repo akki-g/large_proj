@@ -22,6 +22,9 @@ class _CoursesScreenState extends State<CoursesScreen> {
   bool isLoading = true;
   String? errorMessage;
 
+  final TextEditingController _searchController = TextEditingController();
+  String searchKeyword = '';
+
   // Controllers for text input
   final TextEditingController _courseNameController = TextEditingController();
   final TextEditingController _courseNumberController = TextEditingController();
@@ -35,6 +38,16 @@ class _CoursesScreenState extends State<CoursesScreen> {
   void initState() {
     super.initState();
     fetchCourses();
+  }
+
+  List<Map<String, dynamic>> get filteredCourses {
+    if (searchKeyword.isEmpty) return courses;
+    final keyword = searchKeyword.toLowerCase();
+    return courses.where((course) {
+      final name = course['name'].toString().toLowerCase();
+      final number = course['number'].toString().toLowerCase();
+      return name.contains(keyword) || number.contains(keyword);
+    }).toList();
   }
 
   // Fetch courses from the API
@@ -74,17 +87,19 @@ class _CoursesScreenState extends State<CoursesScreen> {
         }
 
         if (responseData['classes'] != null) {
+          final List<dynamic> classList = responseData['classes'];
+
           setState(() {
             // Transform API data to match our local format
-            courses = List<Map<String, dynamic>>.from(
-              responseData['classes'].map((course) => {
-                'id': course['_id'] ?? '',
-                'name': course['name'] ?? 'Unnamed Course',
-                'number': course['number'] ?? 'Unknown Number',
-                // You might need to calculate progress from the API data
-                'progress': 0.5, // Default placeholder
-              }),
-            );
+            courses = classList.map<Map<String, dynamic>>((c) => {
+              'id': c['_id'] ?? '',
+              'name': c['name'] ?? '',
+              'number': c['number'] ?? '',
+              'progress': {
+                'completedChapters': c['progress']?['completedChapters'] ?? 0,
+                'totalChapters': c['progress']?['totalChapters'] ?? 10,
+              },
+            }).toList();
             isLoading = false;
           });
         } else {
@@ -314,7 +329,19 @@ class _CoursesScreenState extends State<CoursesScreen> {
         return StatefulBuilder(
             builder: (context, setState) {
               return AlertDialog(
-                title: const Text('Add New Course'),
+                backgroundColor: Color(0xFFF9E0C6),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                title: const Center(
+                  child: Text(
+                    'Create New Class',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'DynaPuff',
+                      color: Color(0xFF246169),
+                    ),
+                  ),
+                ),
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -324,15 +351,36 @@ class _CoursesScreenState extends State<CoursesScreen> {
                         decoration: const InputDecoration(
                           labelText: 'Course Name',
                           hintText: 'Enter course name',
+                          labelStyle: TextStyle(color: Colors.black),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
                       TextField(
                         controller: _courseNumberController,
-                        keyboardType: TextInputType.number,
+                        textCapitalization: TextCapitalization.characters,
+                        keyboardType: TextInputType.text,
+                        onChanged: (value) {
+                          _courseNumberController.value = _courseNumberController.value.copyWith(
+                            text: value.toUpperCase(),
+                            selection: TextSelection.collapsed(offset: value.length),
+                          );
+                        },
                         decoration: const InputDecoration(
                           labelText: 'Course Number',
                           hintText: 'Enter course number',
+                          labelStyle: TextStyle(color: Colors.black),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -345,6 +393,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
+                              color: Colors.black,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -354,8 +403,15 @@ class _CoursesScreenState extends State<CoursesScreen> {
                               // Update the StatefulBuilder state to show selected file
                               setState(() {});
                             },
-                            icon: const Icon(Icons.upload_file),
-                            label: const Text('Select PDF File'),
+                            icon: const Icon(Icons.upload_file, color: Colors.black),
+                            label: const Text('Select PDF File', style: TextStyle(color: Colors.black)),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Colors.black),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            ),
                           ),
                           if (_selectedFileName != null)
                             Padding(
@@ -479,119 +535,239 @@ class _CoursesScreenState extends State<CoursesScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Courses'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _showAddCourseDialog,
-            tooltip: 'Add Syllabi',
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: fetchCourses,
-            tooltip: 'Refresh Courses',
-          ),
-        ],
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      backgroundColor: const Color(0xFFF9E0C6),
+      iconTheme: const IconThemeData(color: Colors.black),
+      titleSpacing: 15,
+      title: const Text(
+        'say sylla-bye to your study troubles!',
+        style: TextStyle(
+          fontFamily: 'DynaPuff',
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+          color: Color(0xFF246169),
+        ),
       ),
-      body: SafeArea(
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.refresh),
+          onPressed: fetchCourses,
+          tooltip: 'Refresh Courses',
+        ),
+      ],
+    ),
+    body: Container(
+      decoration: const BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment.center,
+          radius: 1.0,
+          colors: [
+            Color.fromRGBO(26, 27, 26, 1),
+            Color.fromRGBO(6, 54, 21, 1),
+          ],
+        ),
+      ),
+      child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Add Syllabi button
+              const Padding(
+                padding: EdgeInsets.only(bottom: 8.0),
+                child: Text(
+                  'Welcome to your dashboard!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'DynaPuff',
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 187, 242, 250),
+                  ),
+                ),
+              ),
+              // Add Syllabi Button
               Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: ElevatedButton.icon(
                   onPressed: _showAddCourseDialog,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add Syllabi'),
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  label: const Text(
+                    'Add Syllabus',
+                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFA5370D),
                     padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                 ),
               ),
 
-              // Loading, error, or content
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    setState(() {
+                      searchKeyword = value;
+                    });
+                  },
+                  style: const TextStyle(color: Colors.black),
+                  decoration: InputDecoration(
+                    hintText: 'Search classes...',
+                    hintStyle: const TextStyle(color: Colors.black54),
+                    filled: true,
+                    fillColor: const Color(0xFFF9E0C6),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    prefixIcon: const Icon(Icons.search, color: Colors.black),
+                    suffixIcon: searchKeyword.isNotEmpty ? IconButton(
+                      icon: const Icon(Icons.clear, color: Colors.black),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {
+                          searchKeyword = '';
+                        });
+                      },
+                    )
+                  : null,
+                  ),
+                ),
+              ),
+
+              // Courses or Loading/Error
               Expanded(
                 child: isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : errorMessage != null
-                    ? Center(child: Text(errorMessage!, textAlign: TextAlign.center))
-                    : courses.isEmpty
-                    ? const Center(
-                  child: Text(
-                    'No courses added yet. Click "Add Syllabi" to add your first course.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-                )
-                    : ListView.separated(
-                  itemCount: courses.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final course = courses[index];
-                    return GestureDetector(
-                      onTap: () => _navigateToCourse(course['id']),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Stack(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    course['name'],
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                        ? Center(
+                            child: Text(
+                              errorMessage!,
+                              style: const TextStyle(
+                                color: Color(0xFFF9E0C6),
+                                fontSize: 16,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          )
+                        : courses.isEmpty
+                            ? const Center(
+                                child: Text(
+                                  'No courses added yet.\nClick "Add Syllabus" to get started.',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xFFF9E0C6),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              )
+                            : filteredCourses.isEmpty
+                              ? const Center(
+                                  child: Text(
+                                    'No matching courses found.',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFFF9E0C6),
                                     ),
+                                    textAlign: TextAlign.center,
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(course['number']),
-                                  const SizedBox(height: 8),
-                                  LinearProgressIndicator(
-                                    value: course['progress'] ?? 0.5, // Use actual progress from API if available
-                                    minHeight: 10,
-                                    backgroundColor: Colors.grey[300],
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green[600]!),
-                                  ),
-                                ],
+                              )
+                            : ListView.separated(
+                                itemCount: filteredCourses.length,
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(height: 12),
+                                itemBuilder: (context, index) {
+                                  final course = filteredCourses[index];
+                                  final completed = course['progress']['completedChapters'] ?? 0;
+                                  final total = course['progress']['totalChapters'] ?? 10;
+                                  return GestureDetector(
+                                    onTap: () =>
+                                        _navigateToCourse(course['id']),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF9E0C6),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  course['name'],
+                                                  style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  course['number'],
+                                                  style: const TextStyle(
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    LinearProgressIndicator(
+                                                      value: (completed / total).clamp(0.0, 1.0),
+                                                      minHeight: 10,
+                                                      backgroundColor: Colors.grey[800],
+                                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.green[600]!),
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      '$completed / $total chapters completed',
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 8,
+                                            right: 8,
+                                            child: IconButton(
+                                              icon: const Icon(Icons.delete,
+                                                  color: Colors.red),
+                                              onPressed: () =>
+                                                  _showDeleteConfirmationDialog(
+                                                      index),
+                                              tooltip: 'Delete Course',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
-                            ),
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => _showDeleteConfirmationDialog(index),
-                                tooltip: 'Delete Course',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // Dispose controllers to prevent memory leaks
   @override

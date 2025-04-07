@@ -12,11 +12,15 @@ class LoginScreen extends StatefulWidget {
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
-
 class _LoginScreenState extends State<LoginScreen> {
+  // Controllers for input fields
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  // Toggles password visibility
   bool _obscurePassword = true;
+
+  // Stores error message if login fails
   String? _errorText;
 
   @override
@@ -26,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  // Styles for input fields
   InputDecoration _roundedInputDecoration(String label) {
     return InputDecoration(
       labelText: label,
@@ -51,11 +56,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _errorText = null);
 
+    // Check if fields are empty
     if (email.isEmpty || password.isEmpty) {
       setState(() => _errorText = 'Please enter both email and password.');
       return;
     }
 
+    // API endpoint for login
     final url = Uri.parse('https://api.scuba2havefun.xyz/api/auth/login');
 
     try {
@@ -65,13 +72,16 @@ class _LoginScreenState extends State<LoginScreen> {
         body: jsonEncode({'email': email, 'password': password}),
       );
 
+      // Success
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final token = data['token'];
 
+        // Stores token
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
         
+        // Navigate to home page
         setState(() => _errorText = null);
         Navigator.pushReplacement(
           context,
@@ -81,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
 
+      // Failure
       else {
         final error = jsonDecode(response.body);
 
@@ -137,11 +148,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 Text("Login", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 SizedBox(height: 10),
+
+                // Email input field
                 TextField(
                   controller: emailController,
                   decoration: _roundedInputDecoration("Email"),
                 ),
                 SizedBox(height: 10),
+
+                // Password input field
                 TextField(
                   controller: passwordController,
                   obscureText: _obscurePassword,
@@ -160,6 +175,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
+
+                // Error message if login fails
                 if (_errorText != null)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
@@ -169,6 +186,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       textAlign: TextAlign.center,
                     ),
                   ),
+
+                // Login button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -185,6 +204,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text("Login", style: TextStyle(fontSize: 16)),
                   ),
                 ),
+
+                // Links to register and forgot password
                 Column(
                   children: [
                     Row(

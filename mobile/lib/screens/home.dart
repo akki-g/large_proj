@@ -15,29 +15,34 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // Tracks current tab
   int _selectedIndex = 0;
 
+  // Fields for delete account
   String _deletePassword = '';
   bool _isDeleting = false;
   String _deleteError = '';
-
   bool _obscureDeletePassword = true;
 
+  // Fields for reset password
   String _resetEmail = '';
   bool _isResetting = false;
   String _resetError = '';
   String _resetMessage = '';
 
+  // Profile data
   String _firstName = '';
   String _lastName = '';
   String _fullName = '';
   String _email = '';
 
+  // Screens
   final List<Widget> _screens = [
     CoursesScreen(),
     ChatPage(),
   ];
 
+  // Delete account
   Future<void> deleteAccount(String password) async {
     if (_deletePassword.trim().isEmpty) {
       setState(() {
@@ -65,6 +70,8 @@ class _HomePageState extends State<HomePage> {
       }
 
       final response = await http.post(
+
+        // API endpoint for delete account
         Uri.parse('https://api.scuba2havefun.xyz/api/auth/delete-account'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -83,25 +90,31 @@ class _HomePageState extends State<HomePage> {
         throw Exception(errorMsg);
       }
 
+      // Clear token and navigate to login
       await prefs.remove('token');
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginScreen()),
       );
-    } catch (e) {
+    } 
+    catch (e) {
       setState(() {
         _deleteError = e.toString();
       });
-    } finally {
+    } 
+    finally {
       setState(() {
         _isDeleting = false;
       });
     }
   }
 
+  // Password reset
   Future<String> resetPassword(String email) async {
     await Future.delayed(Duration(seconds: 2));
     final response = await http.post(
+
+      // API endpoint for password reset
       Uri.parse('https://api.scuba2havefun.xyz/api/auth/forgot-password'),
       body: {'email': email},
     );
@@ -114,12 +127,14 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // Selected tab from navigation bar
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
+  // Profle data
   Future<void> profileData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -129,6 +144,8 @@ class _HomePageState extends State<HomePage> {
     }
 
     final response = await http.post(
+
+      // API endpong for profile data
       Uri.parse('https://api.scuba2havefun.xyz/api/auth/retrieve-data'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -146,12 +163,14 @@ class _HomePageState extends State<HomePage> {
         _email = data['email'] ?? '';
       });
 
+      // Refresh token if available
       if (data['token'] != null) {
         await prefs.setString('token', data['token']);
       }
 
       return;
-    } else {
+    } 
+    else {
       throw Exception('Failed to retrieve profile data.');
     }
   }
@@ -241,7 +260,8 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       );
-    } catch (e) {
+    } 
+    catch (e) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -557,7 +577,7 @@ class _HomePageState extends State<HomePage> {
             ),
             SizedBox(width: 8),
             Text(
-              'Syllab.ai',
+              'Syllab.AI',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -588,11 +608,11 @@ class _HomePageState extends State<HomePage> {
                 value: 'profile',
                 child: Row(
                   children: [
-                    Icon(Icons.account_box, color: Color(0xFF246169)),
+                    Icon(Icons.account_box, color: Colors.black),
                     SizedBox(width: 8),
                     Text(
                       'Profile',
-                      style: TextStyle(color: Color(0xFF246169)),
+                      style: TextStyle(color: Colors.black),
                     ),
                   ],
                 ),
@@ -601,11 +621,11 @@ class _HomePageState extends State<HomePage> {
                 value: 'settings',
                 child: Row(
                   children: [
-                    Icon(Icons.settings, color: Color(0xFF246169)),
+                    Icon(Icons.settings, color: Colors.black),
                     SizedBox(width: 8),
                     Text(
                       'User Settings',
-                      style: TextStyle(color: Color(0xFF246169)),
+                      style: TextStyle(color: Colors.black),
                     ),
                   ],
                 ),
@@ -617,7 +637,7 @@ class _HomePageState extends State<HomePage> {
                   padding: EdgeInsets.symmetric(vertical: 4.0),
                   child: Divider(
                     thickness: 1,
-                    color: Colors.grey,
+                    color: Colors.black,
                     height: 1,
                   ),
                 ),

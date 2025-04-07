@@ -15,40 +15,54 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   String message = '';
   bool loading = false;
 
+  // Submission of forgot password form
   Future<void> _handleSubmit() async {
     setState(() {
       error = '';
       message = '';
       loading = true;
     });
+
+    // Retrieve email entered by user
     final String email = _emailController.text;
 
     try {
       final response = await http.post(
+
+        // API endpoint for forgot password
         Uri.parse('https://api.scuba2havefun.xyz/api/auth/forgot-password'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'email': email}),
       );
 
+      // Decode the JSON response
       final responseBody = json.decode(response.body);
 
+      // Success
       if (response.statusCode == 200) {
         setState(() {
           message = responseBody['msg'] ??
               "Reset link sent! Please check your email.";
         });
-      } else {
+      } 
+
+      // Failure
+      else {
         setState(() {
           error = responseBody['error'] ??
               responseBody['msg'] ??
               'Something went wrong. Please try again.';
         });
       }
-    } catch (e) {
+    }
+
+    catch (e) {
       setState(() {
         error = 'Something went wrong. Please try again.';
       });
-    } finally {
+    } 
+
+    finally {
       setState(() {
         loading = false;
       });
@@ -94,11 +108,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 16),
+
+                  // Instructions for user
                   Text(
                     'Enter your email address. We\'ll send you a link to reset your password.',
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 16),
+
                   TextField(
                     controller: _emailController,
                     decoration: InputDecoration(
@@ -121,23 +138,31 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     keyboardType: TextInputType.emailAddress,
                   ),
                   SizedBox(height: 8),
+
+                  // Show error message
                   if (error.isNotEmpty)
                     Text(
                       error,
                       style: TextStyle(color: Colors.red),
                     ),
+
+                  // Show success message
                   if (message.isNotEmpty)
                     Text(
                       message,
                       style: TextStyle(color: Colors.green),
                     ),
                   SizedBox(height: 16),
+
+                  // Submit button for password reset
                   ElevatedButton(
                     onPressed: loading ? null : _handleSubmit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF152555),
                       minimumSize: Size(double.infinity, 48),
                     ),
+
+                    // Loading indicator
                     child: loading
                         ? SizedBox(
                             width: 20,
@@ -157,6 +182,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           ),
                   ),
                   SizedBox(height: 16),
+
+                  // Navigate back to login
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context);

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const String apiBaseUrl = 'https://api.scuba2havefun.xyz/api';
 
+// Represents a chat message
 class Message {
   final String content;
   final String sender;
@@ -17,6 +18,7 @@ class Message {
     this.timestamp,
   });
 
+  // Create a message from JSON
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
       content: json['content'] ?? '',
@@ -26,6 +28,7 @@ class Message {
   }
 }
 
+// Represents a chat model
 class ChatModel {
   final String id;
   final String title;
@@ -55,6 +58,7 @@ class ChatModel {
   }
 }
 
+// Represents a class model
 class ClassModel {
   final String id;
   final String name;
@@ -83,15 +87,15 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  List<ChatModel> _chats = [];
-  ChatModel? _currentChat;
-  String _message = '';
-  bool _loading = false;
-  String _error = '';
+  List<ChatModel> _chats = [];      // List of all chats
+  ChatModel? _currentChat;          // Current chat
+  String _message = '';             // Current message
+  bool _loading = false;            // Loading state
+  String _error = '';               // Error message
+  List<ClassModel> _classes = [];   // List of classes
 
-  List<ClassModel> _classes = [];
-  bool _showEducationalContext = false;
-  bool _isSidebarCollapsed = false;
+  bool _showEducationalContext = false;   // Toggles between chats and class context
+  bool _isSidebarCollapsed = false;       // Sidebar state
 
   final ScrollController _scrollController = ScrollController();
 
@@ -101,17 +105,22 @@ class _ChatPageState extends State<ChatPage> {
     _checkTokenAndFetchData();
   }
 
+  // Check for valid token
   Future<void> _checkTokenAndFetchData() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
+
+    // Navigate back to login
     if (token == null || token.isEmpty) {
       Navigator.of(context).pushReplacementNamed('/login');
-    } else {
+    } 
+    else {
       _fetchChats();
       _fetchClasses();
     }
   }
 
+  // Fetch list of chats
   Future<void> _fetchChats() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -119,27 +128,34 @@ class _ChatPageState extends State<ChatPage> {
       final response = await http.get(Uri.parse('$apiBaseUrl/chat/list?jwtToken=$token'));
       final data = jsonDecode(response.body);
       if (response.statusCode == 200 || response.statusCode == 201) {
+
+        // Parse list of chats from JSON
         List<ChatModel> chats = (data['chats'] as List)
             .map((chatJson) => ChatModel.fromJson(chatJson))
             .toList();
         setState(() {
           _chats = chats;
         });
+
+        // Update token
         if (data['jwtToken'] != null) {
           prefs.setString('token', data['jwtToken']);
         }
-      } else {
+      } 
+      else {
         setState(() {
           _error = data['msg'] ?? 'Failed to load chats';
         });
       }
-    } catch (e) {
+    } 
+    catch (e) {
       setState(() {
         _error = 'Error fetching chats: $e';
       });
     }
   }
 
+  // Fetch list of classes
   Future<void> _fetchClasses() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -153,17 +169,22 @@ class _ChatPageState extends State<ChatPage> {
             _classes = classesData.map((clsJson) => ClassModel.fromJson(clsJson)).toList();
           });
         }
+
+        // Update token
         if (data['token'] != null) {
           prefs.setString('token', data['token']);
         }
-      } else {
+      } 
+      else {
         debugPrint('Error fetching classes: ${data['msg']}');
       }
-    } catch (e) {
+    } 
+    catch (e) {
       debugPrint('Error fetching classes: $e');
     }
   }
 
+  // Load chat from its ID
   Future<void> _loadChat(String chatId) async {
     setState(() => _loading = true);
     try {
@@ -172,6 +193,8 @@ class _ChatPageState extends State<ChatPage> {
       final response = await http.get(Uri.parse('$apiBaseUrl/chat/detail?chatId=$chatId&jwtToken=$token'));
       final data = jsonDecode(response.body);
       if (response.statusCode == 200 || response.statusCode == 201) {
+
+        // Parse chat details from JSON
         final chat = ChatModel.fromJson(data['chat']);
         setState(() {
           _currentChat = chat;
@@ -182,20 +205,24 @@ class _ChatPageState extends State<ChatPage> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _scrollToBottom();
         });
-      } else {
+      } 
+      else {
         setState(() {
           _error = data['msg'] ?? 'Failed to load chat';
         });
       }
-    } catch (e) {
+    } 
+    catch (e) {
       setState(() {
         _error = 'Error loading chat: $e';
       });
-    } finally {
+    } 
+    finally {
       setState(() => _loading = false);
     }
   }
 
+  // Clear current chat
   void _createNewChat() {
     setState(() {
       _currentChat = null;
@@ -207,6 +234,8 @@ class _ChatPageState extends State<ChatPage> {
     final userMessage = Message(content: _message, sender: 'user');
     setState(() {
       if (_currentChat != null) {
+        
+        // Add a new message to chat
         final updatedMessages = List<Message>.from(_currentChat!.messages)..add(userMessage);
         _currentChat = ChatModel(
           id: _currentChat!.id,
@@ -214,7 +243,8 @@ class _ChatPageState extends State<ChatPage> {
           messages: updatedMessages,
           lastUpdated: DateTime.now(),
         );
-      } else {
+      } 
+      else {
         _currentChat = ChatModel(
           id: 'temp-id',
           title: _getDefaultChatTitle(_message),
@@ -258,21 +288,27 @@ class _ChatPageState extends State<ChatPage> {
             _showEducationalContext = false;
           });
         }
-      } else {
+      } 
+      else {
         setState(() {
           _error = data['msg'] ?? 'Failed to send message';
         });
       }
-    } catch (e) {
+    } 
+    catch (e) {
       setState(() {
         _error = 'Error sending message: $e';
       });
-    } finally {
+    } 
+    finally {
       setState(() => _loading = false);
     }
   }
 
+  // Delete a chat
   Future<void> _deleteChat(String chatId) async {
+
+    // Delete confirmation
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -305,39 +341,47 @@ class _ChatPageState extends State<ChatPage> {
       );
       final data = jsonDecode(response.body);
       if (response.statusCode == 200 || response.statusCode == 201) {
+
+        // Remove chat from list and clear chat if deleted
         setState(() {
           _chats.removeWhere((chat) => chat.id == chatId);
           if (_currentChat?.id == chatId) {
             _currentChat = null;
           }
         });
-      } else {
+      } 
+      else {
         setState(() {
           _error = data['msg'] ?? 'Failed to delete chat';
         });
       }
-    } catch (e) {
+    } 
+    catch (e) {
       setState(() {
         _error = 'Error deleting chat: $e';
       });
     }
   }
 
+  // Generates chat title from first message of chat
   String _getDefaultChatTitle(String firstMessage) {
     if (firstMessage.length <= 30) return firstMessage;
     return '${firstMessage.substring(0, 30)}...';
   }
 
+  // Format of the date
   String _formatDate(DateTime date) {
     return date.toLocal().toString();
   }
 
+  // Scroll view of messages to bottom
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     }
   }
 
+  // Creates a contextual prompt based on a selected class, and sends it as a message
   Future<void> _createContextualPrompt(String classId) async {
     final selectedClass = _classes.firstWhere(
       (c) => c.id == classId,
@@ -353,6 +397,7 @@ class _ChatPageState extends State<ChatPage> {
     await _fetchClasses();
   }
 
+  // Welcome message for new chat messages
   Widget _buildWelcomeMessage() {
     return Center(
       child: Padding(
@@ -361,7 +406,7 @@ class _ChatPageState extends State<ChatPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
             Text(
-              'Welcome to Syllab.ai Chat!',
+              'Welcome to Syllab.AI Chat!',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 24,
@@ -384,33 +429,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _buildChatList() {
-    if (_chats.isEmpty) {
-      return const Center(
-        child: Text(
-          'No chats found.',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
-        ),
-      );
-    }
-    return ListView.builder(
-      itemCount: _chats.length,
-      itemBuilder: (context, index) {
-        final chat = _chats[index];
-        final isActive = _currentChat != null && _currentChat!.id == chat.id;
-        return ListTile(
-          selected: isActive,
-          title: Text(chat.title),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => _deleteChat(chat.id),
-          ),
-          onTap: () => _loadChat(chat.id),
-        );
-      },
-    );
-  }
-
+  // Builds list of classes
   Widget _buildClassList() {
     if (_classes.isEmpty) {
       return const Center(
@@ -433,6 +452,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  // Builds messages view
   Widget _buildMessagesView() {
     final messages = _currentChat!.messages;
     return ListView.builder(
@@ -471,6 +491,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  // Builds input fields
   Widget _buildMessageInput() {
     return Container(
       padding: const EdgeInsets.all(8),
@@ -508,6 +529,16 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFF9E0C6),
+        titleSpacing: 15,
+        title: const Text(
+          'say sylla-bye to your study troubles!',
+          style: TextStyle(
+            fontFamily: 'DynaPuff',
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            color: Color(0xFF246169),
+          ),
+        ),
         elevation: 0,
         flexibleSpace: Container(
           decoration: const BoxDecoration(color: Color(0xFFF9E0C6)),
