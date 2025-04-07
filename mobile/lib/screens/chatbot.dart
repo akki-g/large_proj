@@ -429,6 +429,34 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  // Builds list of chats
+  Widget _buildChatList() {
+    if (_chats.isEmpty) {
+      return const Center(
+        child: Text(
+          'No chats found.',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
+    }
+    return ListView.builder(
+      itemCount: _chats.length,
+      itemBuilder: (context, index) {
+        final chat = _chats[index];
+        final isActive = _currentChat != null && _currentChat!.id == chat.id;
+        return ListTile(
+          selected: isActive,
+          title: Text(chat.title),
+          trailing: IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () => _deleteChat(chat.id),
+          ),
+          onTap: () => _loadChat(chat.id),
+        );
+      },
+    );
+  }
+
   // Builds list of classes
   Widget _buildClassList() {
     if (_classes.isEmpty) {
@@ -452,7 +480,6 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  // Builds messages view
   Widget _buildMessagesView() {
     final messages = _currentChat!.messages;
     return ListView.builder(
@@ -491,7 +518,6 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  // Builds input fields
   Widget _buildMessageInput() {
     return Container(
       padding: const EdgeInsets.all(8),
