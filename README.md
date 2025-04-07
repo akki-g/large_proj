@@ -35,3 +35,14 @@ Multer for file uploads
 Nodemailer for email notifications
 OpenAI API for AI-powered features
 
+
+## Dev Team 
+
+Shawna Thomas 
+Lorena Milian 
+Jeremy Swanson 
+Kimari Guthre 
+Leo Melson 
+David Orozco
+Fedor Kudinov 
+Akshat Guduru
