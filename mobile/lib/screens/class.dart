@@ -192,7 +192,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   // Navigate to quiz for a specific chapter
   void navigateToQuiz(ChapterData chapter) {
     // Get the course ID from the widget
-    String courseId = widget.courseId;
+    //String courseId = widget.courseId;
 
     // Navigate to the quiz page
     Navigator.push(

@@ -60,15 +60,6 @@ class _QuizPageState extends State<QuizPage> {
         return;
       }
 
-      print("Chapter ID being sent: ${widget.chapterId}");
-      print("JWT Token being sent: $token");
-
-      print('Sending quiz generate request...');
-      print('chapterId: ${widget.chapterId}');
-      print('classId: ${widget.classId}');
-      print('JWT Token: $token');
-
-
       // Make API request with proper authorization header
       final response = await http.post(
         Uri.parse('$apiBaseUrl/quiz/generate'),
@@ -390,11 +381,11 @@ class _QuizPageState extends State<QuizPage> {
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: const Text('Cancel'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF2D5A3D),
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                     ),
+                    child: const Text('Cancel'),
                   ),
                   const SizedBox(width: 16),
                   ElevatedButton(

@@ -132,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 Image.asset('assets/logo.png', height: 80),
                 Text(
-                  "Syllab.ai",
+                  "Syllab.AI",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

@@ -204,23 +204,11 @@ class _CoursesScreenState extends State<CoursesScreen> {
         ),
       );
 
-
-      print("Sending request to API...");
-      print("Course Name: $name");
-      print("Course Number: $courseNumber");
-      print("Token: $jwtToken");
-      print("File Path: ${_selectedXFile!.path}");
-
       // Send request
-
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
       // print(response.body);
       final responseData = json.decode(response.body);
-
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
-
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         // Save updated token if provided
@@ -283,11 +271,6 @@ class _CoursesScreenState extends State<CoursesScreen> {
         },
         body: jsonEncode(requestBody),
       );
-
-      // Debug response
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
-
 
       final responseData = await json.decode(response.body);
 
